@@ -12,7 +12,7 @@ final class BrowserWindow: NSWindow {
     )
     titlebarAppearsTransparent = true
     titleVisibility = .hidden
-    title = "Ardia"
+    title = "Bro"
     minSize = NSSize(width: 720, height: 460)
     isReleasedWhenClosed = false
     backgroundColor = NSColor(name: nil) { appearance in

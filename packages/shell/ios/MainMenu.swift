@@ -19,7 +19,8 @@ enum MainMenu {
   private static var undo: StandardItem?
 
   static func build() -> NSMenu {
-    let appName = ProcessInfo.processInfo.processName
+    BroName.install()
+    let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? ProcessInfo.processInfo.processName
     let main = NSMenu()
     moveToProfile = NSMenu(title: "Move to Profile")
     moveToWindow = NSMenu(title: "Move to Window")
@@ -543,6 +544,37 @@ enum MainMenu {
       groupsHeader.isEnabled = false
       history.addItem(groupsHeader)
       for entry in state.recentlyClosedGroups { history.addItem(CommandItem(entry.title, "restoreClosed", arg: entry.id)) }
+    }
+  }
+}
+
+
+// (fork) Bro is a fork of Ardia. Menus are built all over with "Ardia" in their titles; rather than edit each one
+// (and clash with every merge), any menu is renamed as it opens: the menu bar, and every pop-up and context menu.
+enum BroName {
+  private static var installed = false
+
+  static func install() {
+    guard !installed else { return }
+    installed = true
+    NotificationCenter.default.addObserver(forName: NSMenu.didBeginTrackingNotification, object: nil, queue: .main) { note in
+      if let menu = note.object as? NSMenu { rename(menu) }
+    }
+  }
+
+  static func text(_ title: String) -> String {
+    title.contains("Ardia") ? title.replacingOccurrences(of: "\\bArdia\\b", with: "Bro", options: .regularExpression) : title
+  }
+
+  private static func rename(_ menu: NSMenu) {
+    for item in menu.items {
+      let renamed = text(item.title)
+      if renamed != item.title { item.title = renamed }
+      if let submenu = item.submenu {
+        let title = text(submenu.title)
+        if title != submenu.title { submenu.title = title }
+        rename(submenu)
+      }
     }
   }
 }

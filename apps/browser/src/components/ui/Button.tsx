@@ -1,4 +1,5 @@
 import { ContextMenuArea, Symbol, type SymbolProps } from "@ardia/shell";
+import { brand } from "../../lib/brand";
 import { memo, type ReactNode } from "react";
 import { Image, Pressable, Text, View, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native";
 import { modifiersOf, type ClickModifiers } from "../../lib/keys";
@@ -112,7 +113,8 @@ function useIconMetrics(props: IconProps) {
 }
 
 function IconButtonView(props: IconProps) {
-  const { icon, disabled, active, glyphBox, weight = "regular", tooltip, palette, color, style, hit, image, badge, children } = props;
+  const { icon, disabled, active, glyphBox, weight = "regular", palette, color, style, hit, image, badge, children } = props;
+  const tooltip = brand(props.tooltip); // (fork) shown text says Bro
   const theme = useTheme();
   const { hovered, hoverProps } = useHover();
   const metrics = useIconMetrics(props);

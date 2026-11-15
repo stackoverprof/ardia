@@ -1,4 +1,5 @@
 import { OutsidePressArea, showMenu, Symbol, type MenuItem } from "@ardia/shell";
+import { brand } from "../../lib/brand";
 import { useEffect, useRef, type Ref } from "react";
 import { Animated, Pressable, StyleSheet, Text, TextInput, View, type DimensionValue, type StyleProp, type ViewStyle } from "react-native";
 import { curve, duration } from "./motion";
@@ -70,7 +71,7 @@ export function SearchField({
         ref={inputRef}
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={brand(placeholder)}
         placeholderTextColor={bare ? theme.placeholder : theme.textTertiary}
         selectionColor={theme.selection}
         autoFocus={autoFocus}
@@ -146,7 +147,7 @@ export function TextField({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
+          placeholder={brand(placeholder)}
           placeholderTextColor={theme.textTertiary}
           selectionColor={theme.selection}
           autoFocus={autoFocus}

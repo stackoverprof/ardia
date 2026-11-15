@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { Text as NativeText, type StyleProp, type TextProps as NativeTextProps, type TextStyle } from "react-native";
 import { useTheme } from "./theme";
+import { brandDeep } from "../../lib/brand";
 import { font as typeScale, weight as weights, type ColorRole, type TypeSize, type Weight } from "./tokens";
 
 export type TextProps = Omit<NativeTextProps, "style"> & {
@@ -16,5 +17,10 @@ export const Text = memo(function Text({ size = "body", weight, tone = "textPrim
   const theme = useTheme();
   const ink = color ?? theme[tone];
   const tokens = useMemo<TextStyle>(() => ({ ...typeScale[size], fontWeight: weight ? weights[weight] : undefined, color: ink }), [size, weight, ink]);
-  return <NativeText {...rest} numberOfLines={lines ?? rest.numberOfLines} style={style ? [tokens, style] : tokens} />;
+  const children = brandDeep(rest.children); // (fork) shown text says Bro
+  return (
+    <NativeText {...rest} numberOfLines={lines ?? rest.numberOfLines} style={style ? [tokens, style] : tokens}>
+      {children}
+    </NativeText>
+  );
 });
