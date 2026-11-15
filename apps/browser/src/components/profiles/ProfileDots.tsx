@@ -40,7 +40,7 @@ export function ProfileDots({ windowId, width, besideDownloads }: { windowId: st
   // (fork) the profile's name sits here in the footer, just before the dots: "Name . ."
   const incognito = useIsIncognito();
   return (
-    <View style={{ height: PROFILE_DOTS_HEIGHT, paddingLeft: FOOTER_EDGE, paddingRight: FOOTER_DOTS_RIGHT, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+    <View style={{ height: PROFILE_DOTS_HEIGHT, paddingLeft: besideDownloads ? FOOTER_EDGE + SIDEBAR_FOOTER_DOWNLOADS.size + 2 : FOOTER_EDGE, paddingRight: FOOTER_DOTS_RIGHT, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
       <ProfileIndicator room={Math.max(0, width * 0.55)} />
       {incognito ? null : (
         <View style={{ height: BAND, flexDirection: "row" }}>

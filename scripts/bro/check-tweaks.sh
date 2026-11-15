@@ -43,6 +43,7 @@ check $B/src/components/window/useDockLights.ts 'setTrafficLightsHidden(windowId
 check $B/src/components/window/useDockLights.ts '(fork) a hidden left sidebar leaves the traffic lights where they are'
 check $B/src/components/profiles/ProfileDots.tsx '<ProfileIndicator room='
 check $B/src/components/profiles/ProfileDots.tsx 'FOOTER_EDGE'
+check $B/src/components/sidebar/Sidebar.tsx 'const footerDownloads = hasDownloads;'
 
 check packages/shell/ios/WindowManager.swift 'final class QuietLights'
 check packages/shell/ios/AppWindowsModule.swift 'AsyncFunction("setTrafficLightsQuiet")'

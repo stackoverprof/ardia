@@ -39,8 +39,9 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 
 ## Sidebar
 
-- When it slides in over the page it shows **no traffic lights** and no empty header row; the pinned tiles start as
-  far from the top as from the sides. The row stays only while it holds the downloads button.
+- When it slides in over the page it shows **no traffic lights** and no header row; the pinned tiles start as far
+  from the top as from the sides. **Nothing sits above the pinned tiles.**
+- The **downloads button is in the footer**, at the far left, before the profile name.
 - The sidebar keeps a **darker ground** than the window frame, docked or sliding.
 - The **profile name is in the footer**, at the left, with the profile dots at the right; evenly padded.
 

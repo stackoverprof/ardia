@@ -45,7 +45,7 @@ export function Sidebar({ width }: { width: number }) {
   const header = addressBar ? SIDEBAR_HEADER_WITH_FIELD : layout.sidebarHeader;
   const hasDownloads = useHasDownloads(windowId);
   const dots = useProfileDotsShown();
-  const footerDownloads = addressBar && hasDownloads;
+  const footerDownloads = hasDownloads; // (fork) the downloads button always lives in the footer: nothing sits above the pinned tiles
   const footer = dots || footerDownloads ? PROFILE_DOTS_HEIGHT : 0;
   const nothingPinned = useNoTiles(windowId, current);
   const rowLook = useSidebarRowLookSource();
@@ -114,7 +114,7 @@ export function Sidebar({ width }: { width: number }) {
                   <ContextMenuArea style={StyleSheet.absoluteFill} onContextMenu={() => void openSidebarMenu(windowId)} />
                   {dots ? <ProfileDots windowId={windowId} width={width} besideDownloads={footerDownloads} /> : null}
                   {footerDownloads ? (
-                    <View style={{ position: "absolute", left: SIDEBAR_FOOTER_DOWNLOADS.left, bottom: SIDEBAR_FOOTER_DOWNLOADS.bottom }}>
+                    <View style={{ position: "absolute", left: (footer - SIDEBAR_FOOTER_DOWNLOADS.size) / 2, bottom: (footer - SIDEBAR_FOOTER_DOWNLOADS.size) / 2 }}>
                       <DownloadsButton windowId={windowId} />
                     </View>
                   ) : null}
@@ -133,7 +133,6 @@ export function Sidebar({ width }: { width: number }) {
                 ) : (
                   <View pointerEvents="box-none" style={{ height: layout.sidebarHeader, flexDirection: "row", alignItems: "flex-start", paddingLeft: PROFILE_INDICATOR_X, paddingRight: HEADER_RIGHT, paddingTop: lightsY - 17 }}>
                     <View pointerEvents="none" style={{ flex: 1 }} />
-                    {hasDownloads ? <DownloadsButton windowId={windowId} /> : null}
                   </View>
                 )}
               </View>
