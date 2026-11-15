@@ -1,5 +1,5 @@
 import { pageHostLabel, urlTrail } from "../../lib/url";
-import { memo, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Animated, Pressable, StyleSheet, View, type ViewStyle } from "react-native";
 import { useTheme } from "../ui/theme";
@@ -179,6 +179,13 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
   const field = useUrlField(tab, windowId, onFocus);
   const { insecure, hovered, popover, toggleSiteControls } = field;
   const glass = useGlass();
+  // (fork) centre the domain on the toolbar's full width, not on the field: pad whichever side has less
+  // around the text (nav buttons on the left; the field's own buttons and the extensions on the right)
+  const [buttonsWidth, setButtonsWidth] = useState(0);
+  const textLeft = insecure ? LOCK.gap : urlTextLeft(false);
+  const leftInset = (typeof style.left === "number" ? style.left : 0) + (insecure ? LOCK.left + LOCK.width : 0) + textLeft;
+  const rightInset = (typeof style.right === "number" ? style.right : 0) + buttonsWidth;
+  const balance = leftInset - rightInset;
 
   return (
     <View {...field.hoverProps} style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius, backgroundColor: hovered && !glass ? palette.pill : undefined }]}>
@@ -196,7 +203,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
         </Pressable>
       )}
       <ContextMenuArea style={{ flex: 1 }} onContextMenu={() => void showUrlBarMenu(tab)}>
-        <Pressable onPress={field.openPanel} style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: insecure ? LOCK.gap : urlTextLeft(false) }}>
+        <Pressable onPress={field.openPanel} style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
             <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
               {field.host}
@@ -209,6 +216,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           </View>
         </Pressable>
       </ContextMenuArea>
+      <View onLayout={(e) => setButtonsWidth(e.nativeEvent.layout.width)}>
       <FieldButtons tab={tab} palette={palette} onFocus={onFocus} popover={popover} toggleSiteControls={toggleSiteControls}>
         {hovered && (
           <>
@@ -226,6 +234,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           </>
         )}
       </FieldButtons>
+      </View>
     </View>
   );
 });
