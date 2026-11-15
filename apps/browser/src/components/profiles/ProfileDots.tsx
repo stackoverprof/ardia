@@ -13,6 +13,7 @@ import { SIDEBAR_FOOTER_DOWNLOADS } from "../sidebar/geometry";
 import { switcherCellWidth, switcherIcons, SwitcherMark } from "./ProfileIcons";
 import { openProfileItemMenu } from "./profileMenu";
 import { profileSwitcher } from "./tokens";
+import { ProfileIndicator } from "./ProfileIndicator";
 
 export const PROFILE_DOTS_HEIGHT = profileSwitcher.height;
 const { band: BAND, dotTooltipLift } = profileSwitcher;
@@ -22,7 +23,7 @@ const SIDE_ROOM_BESIDE_DOWNLOADS = SIDEBAR_FOOTER_DOWNLOADS.left + SIDEBAR_FOOTE
 export function useProfileDotsShown() {
   const incognito = useIsIncognito();
   const count = useProfileOrder((o) => o.length);
-  return !incognito && count > 1;
+  return incognito || count > 1; // (fork) the footer also carries the profile name now, so incognito shows it too
 }
 
 export function ProfileDots({ windowId, width, besideDownloads }: { windowId: string; width: number; besideDownloads: boolean }) {
@@ -31,13 +32,18 @@ export function ProfileDots({ windowId, width, besideDownloads }: { windowId: st
   const shown = useSettings((s) => s.profileSwitcherIcons);
   const icons = switcherIcons(saved, shown, width - 2 * (besideDownloads ? SIDE_ROOM_BESIDE_DOWNLOADS : SIDE_ROOM));
   const { pages, pager } = usePagerPages(windowId);
+  // (fork) the profile's name sits here in the footer, just before the dots: "Name . ."
+  const incognito = useIsIncognito();
   return (
-    <View style={{ height: PROFILE_DOTS_HEIGHT, alignItems: "center" }}>
-      <View style={{ marginTop: (PROFILE_DOTS_HEIGHT - 3 - BAND) / 2, height: BAND, flexDirection: "row" }}>
-        {ids.map((id, i) => (
-          <Dot key={id} id={id} windowId={windowId} icon={icons[i] ?? null} page={pages.find((p) => p.id === id)} pos={pager.pos} />
-        ))}
-      </View>
+    <View style={{ height: PROFILE_DOTS_HEIGHT, paddingBottom: 3, paddingHorizontal: SIDE_ROOM + 4, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+      <ProfileIndicator room={Math.max(0, width * 0.55)} />
+      {incognito ? null : (
+        <View style={{ height: BAND, flexDirection: "row" }}>
+          {ids.map((id, i) => (
+            <Dot key={id} id={id} windowId={windowId} icon={icons[i] ?? null} page={pages.find((p) => p.id === id)} pos={pager.pos} />
+          ))}
+        </View>
+      )}
     </View>
   );
 }

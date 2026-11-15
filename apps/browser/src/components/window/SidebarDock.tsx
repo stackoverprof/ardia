@@ -9,7 +9,6 @@ import { useSidebarSide, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
 import { useAddressBarInSidebar, useToolbarLightsCenter } from "../../state/windows/layout";
 import { useHasDownloads } from "../../state/sidebar/hooks";
-import { useProfileIndicatorWidth } from "../profiles/ProfileIndicator";
 import { layout } from "../ui";
 import { Sidebar } from "../sidebar/Sidebar";
 import { dismissHoverIn } from "../../state/sidebar/hover";
@@ -214,11 +213,10 @@ function SidebarDock({
   const peeking = peekOnScreen(state);
   const holding = state === "peeking";
   // (fork) the peeking sidebar has no traffic lights, so the header row kept for them is dead space: pull the
-  // content up over it, unless that row is showing the profile name or the downloads button
+  // content up over it, unless that row is showing the downloads button
   const hasDownloads = useHasDownloads(windowId);
-  const profileShown = useProfileIndicatorWidth(1000) > 0;
   const addressInSidebar = useAddressBarInSidebar();
-  const headerInUse = hasDownloads || profileShown || addressInSidebar;
+  const headerInUse = hasDownloads || addressInSidebar;
   const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
