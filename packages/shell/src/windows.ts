@@ -36,6 +36,9 @@ export type WindowsNative = {
   focusWindow(id: string): Promise<void>;
   restoreFullScreen(ids: string[], focus: string | null): Promise<void>;
   setTrafficLightsCenter(id: string, center: [number, number] | null, trailing: boolean): Promise<void>;
+  setTrafficLightsQuiet(id: string, on: boolean, lightInk: boolean): Promise<void>;
+  setTrafficLightsHidden(id: string, hidden: boolean): Promise<void>;
+  trafficLightsFrames(id: string): Promise<number[][]>;
   watchSidebarEdge(id: string, on: boolean, hold: number, right: boolean, whilePressed: boolean): Promise<void>;
   dragPreviewBegin(windowId: string, chip: Rect4, grab: [number, number]): Promise<void>;
   dragPreviewPage(base64: string, frame: Rect4): Promise<void>;

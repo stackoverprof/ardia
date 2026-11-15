@@ -7,9 +7,10 @@ import { TOOLBAR_ROWS, urlFieldOf, type ToolbarRow } from "../../lib/toolbarRow"
 import { ToolbarRowContext } from "../ui/toolbarRowContext";
 import { activate } from "../../state/tabs/actions";
 import { openPanel as openWindowPanel, toggleSidebar } from "../../state/windows/actions";
-import { useIsBookmarked, useSettings, useSidebarSide, useTab, useTabLayout, useTabLive, useTabsShown } from "../../state/browser/hooks";
+import { setTrafficLightsQuiet, trafficLightsFrames } from "../../platform/windows";
+import { useIsBookmarked, useSettings, useSidebarSide, useTab, useTabLayout, useTabLive, useTabsShown, useWindowFullScreen } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
-import { Button, ContextMenuArea, Divider, FadeLabel, font, ink, space, Symbol, Text, useHover, WindowDragRegion } from "../ui";
+import { Button, ContextMenuArea, Divider, FadeLabel, font, ink, layout, space, Symbol, Text, useHover, WindowDragRegion } from "../ui";
 import { type ToolbarGeometry } from "../window/geometry";
 import { usePage, usePages, type PageState } from "../../state/tabs/pageState";
 import { togglePopover } from "../../state/tabs/popoverDismiss";
@@ -91,21 +92,59 @@ export function Toolbar({
   const focus = useCallback(() => {
     if (!focused) activate(tabId);
   }, [focused, tabId]);
+  // (fork) Zen-style toolbar: traffic lights (when the sidebar is hidden) and the sidebar button on the left,
+  // back / forward / reload on the right, just before the extensions
+  const sidebarLayout = useTabLayout(windowId) === "sidebar";
+  const sidebarOnLeft = useSidebarSide(windowId) === "left";
+  const fullScreen = useWindowFullScreen(windowId);
+  const lightsInToolbar = sidebarLayout && sidebarOnLeft && !tabsShown && !inSplit && !fullScreen;
+  const right = urlFieldRight(inSplit, extensionsWidth, row);
+  const navStep = row.button + 4; // tighter than the stock spacing, with room between the hover plates
+  const leftStart = lightsInToolbar ? layout.trafficLightsWidth : 8;
+  const urlLeft = geometry.sidebarButton !== null ? leftStart + row.button + 4 : leftStart;
   const at = useMemo(() => {
     const top = row.center - row.button / 2;
     const place = (center: number | null) => ({ position: "absolute" as const, top, left: (center ?? 0) - row.button / 2 });
     const hit = { width: row.button, height: row.button, plateX: 0, plateY: 0, box: row.button, radius: row.buttonRadius };
-    const nav = (center: number | null) => ({ style: place(center), hit });
-    return { top, sidebarButton: place(geometry.sidebarButton), back: nav(geometry.back), forward: nav(geometry.forward), reload: nav(geometry.reload) };
-  }, [geometry, row]);
-  const right = urlFieldRight(inSplit, extensionsWidth, row);
-  const urlStyle = useMemo(() => ({ position: "absolute" as const, left: geometry.urlLeft, right, top: urlFieldOf(row).top }), [geometry.urlLeft, right, row]);
+    const nav = (fromRight: number) => ({ style: { position: "absolute" as const, top, right: right - 4 + fromRight * navStep }, hit });
+    return { top, sidebarButton: place(leftStart + row.button / 2), back: nav(2), forward: nav(1), reload: nav(0) };
+  }, [row, right, navStep, leftStart]);
+  // (fork) like the Zen mod: at rest the lights are quiet dots in the page's ink, and the real coloured lights come
+  // back on hover. The native side draws the dots at the buttons' own frames and handles the hover.
+  const lightInk = palette.text.startsWith(ink.white);
+  useEffect(() => {
+    void setTrafficLightsQuiet(windowId, lightsInToolbar, lightInk);
+  }, [windowId, lightsInToolbar, lightInk]);
+  useEffect(() => () => void setTrafficLightsQuiet(windowId, false, false), [windowId]);
+  // The dots themselves are toolbar content, placed on the real lights' frames (asked from the window), so the
+  // sidebar covers them when it slides over instead of them popping in and out.
+  const bar = useRef<View>(null);
+  const [dots, setDots] = useState<number[][]>([]);
+  useEffect(() => {
+    if (!lightsInToolbar) return setDots([]);
+    let live = true;
+    const place = () =>
+      void trafficLightsFrames(windowId).then((frames) => {
+        bar.current?.measureInWindow((x, y) => {
+          if (live) setDots(frames.map(([fx = 0, fy = 0, w = 0, h = 0]) => [fx - x, fy - y, Math.min(w, h), w, h]));
+        });
+      });
+    const timers = [60, 400, 1200].map((ms) => setTimeout(place, ms));
+    return () => {
+      live = false;
+      timers.forEach(clearTimeout);
+    };
+  }, [windowId, lightsInToolbar, row]);
+  const urlStyle = useMemo(() => ({ position: "absolute" as const, left: urlLeft, right: right + 3 * navStep, top: urlFieldOf(row).top }), [urlLeft, right, navStep, row]);
   if (!tab) return <View style={{ height: row.height }} />;
 
   return (
-    <View style={{ height: row.height }}>
+    <View ref={bar} style={{ height: row.height }}>
       {!bare && <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />}
       <WindowDragRegion style={StyleSheet.absoluteFill} />
+      {dots.map(([x = 0, y = 0, side = 0, w = 0, h = 0], i) => (
+        <View key={i} pointerEvents="none" style={{ position: "absolute", left: x + (w - side) / 2, top: y + (h - side) / 2, width: side, height: side, borderRadius: side / 2, backgroundColor: palette.text, opacity: 0.22 }} />
+      ))}
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: dim }]} pointerEvents="box-none">
         {geometry.sidebarButton !== null && (
           <Button variant="icon" toolbar
@@ -161,7 +200,7 @@ function useUrlField(tab: ToolbarTab, windowId: string, onFocus: () => void) {
   const hovered = pointerOver || popover === "siteControls";
   const openPanel = () => {
     onFocus();
-    openWindowPanel(windowId, tab.url);
+    openWindowPanel(windowId, tab.url, undefined, "centred"); // (fork) same place Cmd+L opens it
   };
   const toggleSiteControls = () => {
     onFocus();
@@ -182,13 +221,15 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
   // (fork) centre the domain on the toolbar's full width, not on the field: pad whichever side has less
   // around the text (nav buttons on the left; the field's own buttons and the extensions on the right)
   const [buttonsWidth, setButtonsWidth] = useState(0);
+  // (fork) at rest the domain is the page ink let through the toolbar's tint (a deeper or paler shade of it); full ink on hover
+  const domain = useHover();
   const textLeft = insecure ? LOCK.gap : urlTextLeft(false);
   const leftInset = (typeof style.left === "number" ? style.left : 0) + (insecure ? LOCK.left + LOCK.width : 0) + textLeft;
   const rightInset = (typeof style.right === "number" ? style.right : 0) + buttonsWidth;
   const balance = leftInset - rightInset;
 
   return (
-    <View {...field.hoverProps} style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius }]}>
+    <View pointerEvents="box-none" style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius }]}>
       {/* (fork) no container behind the address: it takes the toolbar's own colour, at rest and on hover */}
       {insecure && (
         <Pressable onPress={toggleSiteControls} style={{ paddingLeft: LOCK.left }} tooltip="Connection is not secure">
@@ -200,38 +241,21 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           />
         </Pressable>
       )}
-      <ContextMenuArea style={{ flex: 1 }} onContextMenu={() => void showUrlBarMenu(tab)}>
-        <Pressable onPress={field.openPanel} style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+      {/* (fork) no address field: just the domain as plain text. Clicking the text opens the command bar (as Cmd+L does);
+          the empty toolbar either side of it still drags the window. */}
+      <View pointerEvents="box-none" style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
+        <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+          <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center", paddingHorizontal: 8, opacity: domain.hovered ? 1 : DOMAIN_REST }}>
             <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
               {field.host}
             </Text>
-            {field.trail ? (
-              <Text numberOfLines={1} color={palette.secondary} style={SHRINK}>
-                {field.trail}
-              </Text>
-            ) : null}
-          </View>
-        </Pressable>
-      </ContextMenuArea>
+          </Pressable>
+        </View>
+      </View>
       <View onLayout={(e) => setButtonsWidth(e.nativeEvent.layout.width)}>
-      <FieldButtons tab={tab} palette={palette} onFocus={onFocus} popover={popover} toggleSiteControls={toggleSiteControls}>
-        {hovered && (
-          <>
-            <PageButton tab={tab} palette={palette} windowId={windowId} />
-            {!inSplit && (
-              <Button variant="icon" toolbar
-                palette={palette}
-                icon="rectangle.split.2x1"
-                look="field"
-                onPress={() => openSplitPane(windowId, { anchorTabId: tab.id })}
-                tooltip={withShortcut("Open Split View", splitHint)}
-              />
-            )}
-            <Button variant="icon" toolbar palette={palette} icon="slider.horizontal.3" look="field" onPress={toggleSiteControls} active={popover === "siteControls"} tooltip="Site Controls" />
-          </>
-        )}
-      </FieldButtons>
+        <FieldButtons tab={tab} palette={palette} onFocus={onFocus} popover={popover} toggleSiteControls={toggleSiteControls}>
+          {null}
+        </FieldButtons>
       </View>
     </View>
   );
@@ -277,6 +301,7 @@ export const SidebarUrlField = memo(function SidebarUrlField({ tab, palette, win
   );
 });
 
+const DOMAIN_REST = 0.5;
 const HOST_FULL = { flexShrink: 0, maxWidth: "100%" } as const;
 const SHRINK = { flexShrink: 1 } as const;
 

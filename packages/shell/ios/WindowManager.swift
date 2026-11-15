@@ -224,6 +224,25 @@ final class WindowManager: NSObject, NSWindowDelegate {
     }
   }
 
+  func trafficLightsFrames(id: String) -> [[Double]] {
+    guard let window = window(id) else { return [] }
+    let height = window.frame.height
+    return [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton].compactMap { window.standardWindowButton($0) }.map {
+      let rect = $0.convert($0.bounds, to: nil)
+      return [Double(rect.minX), Double(height - rect.maxY), Double(rect.width), Double(rect.height)]
+    }
+  }
+
+  func setTrafficLightsHidden(id: String, hidden: Bool) {
+    guard let window = window(id) else { return }
+    QuietLights.of(window).set(concealed: hidden)
+  }
+
+  func setTrafficLightsQuiet(id: String, on: Bool, lightInk: Bool) {
+    guard let window = window(id) else { return }
+    QuietLights.of(window).set(on: on, lightInk: lightInk)
+  }
+
   func setTrafficLightsCenter(id: String, center: NSPoint?, trailing: Bool) {
     lightsCenters[id] = center.map { ($0, trailing) }
     guard let window = window(id) else { return }
@@ -505,5 +524,87 @@ final class WindowManager: NSObject, NSWindowDelegate {
     }
     let f = window.frame
     ShellEvents.send(.window, ["type": "frame", "id": id, "frame": [f.minX, f.minY, f.width, f.height]])
+  }
+}
+
+
+// (fork) Quiet traffic lights, like the Zen mod. At rest the real buttons are faded out and the toolbar shows its own
+// plain dots where they are (drawn by the toolbar, so the sidebar can slide over them like any other toolbar content).
+// This view sits under the three buttons and watches the pointer: moving over them brings the real lights back.
+final class QuietLights: NSView {
+  private static let key = UnsafeRawPointer(bitPattern: 0x51_4c_69_67)!
+  static func of(_ window: NSWindow) -> QuietLights {
+    if let existing = objc_getAssociatedObject(window, key) as? QuietLights { return existing }
+    let made = QuietLights(window: window)
+    objc_setAssociatedObject(window, key, made, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    return made
+  }
+
+  private weak var host: NSWindow?
+  private var on = false
+  private var lightInk = false
+  private var hovering = false
+  private var concealed = false
+  private var area: NSTrackingArea?
+
+  private init(window: NSWindow) {
+    host = window
+    super.init(frame: .zero)
+    wantsLayer = true
+    for button in buttons {
+      button.postsFrameChangedNotifications = true
+      NotificationCenter.default.addObserver(self, selector: #selector(sync), name: NSView.frameDidChangeNotification, object: button)
+    }
+  }
+
+  required init?(coder: NSCoder) { fatalError("not used") }
+
+  private var buttons: [NSButton] {
+    [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton].compactMap { host?.standardWindowButton($0) }
+  }
+
+  func set(on: Bool, lightInk: Bool) {
+    self.on = on
+    self.lightInk = lightInk
+    sync()
+  }
+
+  func set(concealed: Bool) {
+    self.concealed = concealed
+    sync()
+  }
+
+  override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+  @objc private func sync() {
+    let buttons = self.buttons
+    guard let first = buttons.first, let parent = first.superview else { return }
+    if superview !== parent { parent.addSubview(self, positioned: .below, relativeTo: first) }
+    let quiet = on && !hovering
+    for button in buttons {
+      button.alphaValue = quiet || concealed ? 0 : 1
+      button.isHidden = concealed
+    }
+    isHidden = !on || concealed
+    guard on, !concealed else { return }
+    frame = buttons.reduce(first.frame) { $0.union($1.frame) }.insetBy(dx: -6, dy: -6)
+  }
+
+  override func updateTrackingAreas() {
+    super.updateTrackingAreas()
+    if let area { removeTrackingArea(area) }
+    let made = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect], owner: self, userInfo: nil)
+    addTrackingArea(made)
+    area = made
+  }
+
+  override func mouseEntered(with event: NSEvent) {
+    hovering = true
+    sync()
+  }
+
+  override func mouseExited(with event: NSEvent) {
+    hovering = false
+    sync()
   }
 }

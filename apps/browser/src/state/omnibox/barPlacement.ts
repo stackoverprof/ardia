@@ -8,8 +8,7 @@ export type BarPlacement = "field" | "centred" | "centredNoField";
 
 export function keyBarPlacement(o: { setting: "field" | "centred"; small: boolean; fieldShown: boolean }): BarPlacement {
   if (o.small) return "field";
-  if (o.setting === "centred") return "centred";
-  return o.fieldShown ? "field" : "centredNoField";
+  return "centred"; // (fork) the toolbar has no address field any more: the command bar always opens mid-window
 }
 
 export function addressFieldShown(s: BrowserState, windowId: string): boolean {

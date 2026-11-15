@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Animated } from "react-native";
 import { setTrafficLightsCenter } from "../../state/windows/nativeWindow";
+import { setTrafficLightsHidden } from "../../platform/windows";
 import { dockMoving, sidebarLightsCenter, TOP_STRIP_LIGHTS_CENTER } from "../../state/windows/dockMotion";
 import { currentValue } from "../ui/motion";
 
@@ -52,10 +53,18 @@ export function useSidebarLights(windowId: string, dock: Animated.Value, slide: 
     });
     return () => slide.removeListener(b);
   }, [slide, o.peeking]);
+  // (fork) the peeking sidebar shows no traffic lights: they belong to the toolbar it slides over
+  const concealed = o.peeking && !o.right && !o.fullscreen;
+  useEffect(() => {
+    void setTrafficLightsHidden(windowId, concealed);
+    return () => void setTrafficLightsHidden(windowId, false);
+  }, [windowId, concealed]);
   useEffect(() => apply.current(), [o.width, o.peeking, o.fullscreen, o.lights, o.right, o.peekAt.left, o.peekAt.top]);
 }
 
 export function slidingCenter(o: SidebarLights, dock: number, slide: number) {
-  const offset = o.fullscreen ? 0 : o.peeking ? (o.width + 12) * (1 - slide) - o.peekAt.left : o.width * (1 - dock);
+  // (fork) a hidden left sidebar leaves the traffic lights where they are, at the toolbar's left, instead of sliding them out
+  if (o.peeking && !o.right && !o.fullscreen) return sidebarLightsCenter(false, o.width, 0, 0, o.lights); // (fork) hidden meanwhile, so left in place
+  const offset = o.fullscreen ? 0 : o.peeking ? (o.width + 12) * (1 - slide) - o.peekAt.left : o.right ? o.width * (1 - dock) : 0;
   return sidebarLightsCenter(o.right && !o.fullscreen, o.width, offset, o.peeking && !o.fullscreen ? o.peekAt.top : 0, o.lights);
 }

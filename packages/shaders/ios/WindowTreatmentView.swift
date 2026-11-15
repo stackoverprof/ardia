@@ -93,9 +93,13 @@ final class WindowTreatmentView: NSView {
   private func updateAppearance() {
     let dark = isDark
     blur.material = NSVisualEffectView.Material(rawValue: dark ? 29 : 13) ?? .hudWindow
-    gradient.opacity = dark ? 0.5 : 0.75
-    let base = dark ? NSColor(white: 0, alpha: 0.4) : NSColor(white: 1, alpha: 0.8)
-    baseTint.backgroundColor = (custom.map { (dark ? NSColor.black : NSColor.white).withAlphaComponent($0.baseAlpha) } ?? base).cgColor
+    // (fork) a far more see-through window frame: the colour wash, the base wash and the blur itself are all thinned
+    // (stock: gradient 0.5 / 0.75, base 0.4 / 0.8, blur fully opaque)
+    gradient.opacity = dark ? 0.2 : 0.3
+    // in dark mode the wash is now white, lifting the dark blur material instead of deepening it
+    let base = dark ? NSColor(white: 1, alpha: 0.18) : NSColor(white: 1, alpha: 0.15)
+    baseTint.backgroundColor = (custom.map { dark ? NSColor(white: 1, alpha: 0.18) : NSColor.white.withAlphaComponent($0.baseAlpha * 0.3) } ?? base).cgColor
+    blur.alphaValue = 0.7
   }
 
   private func updateGrain() {

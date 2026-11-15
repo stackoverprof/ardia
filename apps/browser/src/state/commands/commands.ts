@@ -160,6 +160,7 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
     case "restoreClosed":
       return arg ? s.restoreClosed(arg, windowId) : undefined;
     case "focusCommandBar": {
+      if (ui?.panel.open && !ui.panel.newTab) return s.closePanel(windowId); // (fork) Cmd+L again closes the command bar
       const placement = commandKeyPlacement(s, windowId);
       if (page) return s.openPanel(windowId, page.url, undefined, placement);
       if (isEmptyCardTab(s, tab) && showNewTabBar(windowId)) return;

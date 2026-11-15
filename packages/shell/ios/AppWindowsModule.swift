@@ -39,6 +39,18 @@ public class AppWindowsModule: Module {
     AsyncFunction("setTrafficLightsCenter") { (id: String, center: CGPoint?, trailing: Bool) in
       WindowManager.shared.setTrafficLightsCenter(id: id, center: center, trailing: trailing)
     }.runOnQueue(.main)
+    // (fork) quiet traffic lights: plain dots in the page's ink at rest, the real coloured lights on hover
+    AsyncFunction("setTrafficLightsQuiet") { (id: String, on: Bool, lightInk: Bool) in
+      WindowManager.shared.setTrafficLightsQuiet(id: id, on: on, lightInk: lightInk)
+    }.runOnQueue(.main)
+    // (fork) where the three lights are, as [x, y, width, height] from the window's top-left, for the toolbar's own dots
+    AsyncFunction("trafficLightsFrames") { (id: String) -> [[Double]] in
+      WindowManager.shared.trafficLightsFrames(id: id)
+    }.runOnQueue(.main)
+    // (fork) no traffic lights at all while the sidebar peeks in over the toolbar
+    AsyncFunction("setTrafficLightsHidden") { (id: String, hidden: Bool) in
+      WindowManager.shared.setTrafficLightsHidden(id: id, hidden: hidden)
+    }.runOnQueue(.main)
     AsyncFunction("watchSidebarEdge") { (id: String, on: Bool, hold: Double, right: Bool, whilePressed: Bool) in
       SidebarEdgeWatcher.shared.watch(id: id, on: on, hold: CGFloat(hold), right: right, whilePressed: whilePressed)
     }.runOnQueue(.main)

@@ -93,6 +93,9 @@ const windowsModule: Modules["ArdiaAppWindows"] = {
   },
   animateWindowClose: () => Promise.resolve(),
   restoreFullScreen: () => Promise.resolve(),
+  setTrafficLightsQuiet: () => Promise.resolve(),
+  setTrafficLightsHidden: () => Promise.resolve(),
+  trafficLightsFrames: () => Promise.resolve([]),
   setTrafficLightsCenter: (id, center, trailing) => {
     const window = windows.open.get(id);
     if (window) Object.assign(window, { trafficLightsCenter: center, trafficLightsTrailing: trailing });

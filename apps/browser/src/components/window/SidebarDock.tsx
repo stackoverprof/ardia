@@ -7,7 +7,10 @@ import { spring, curve } from "../ui/motion";
 import { Panel, reduceMotion, WindowBackdrop, WindowDragRegion } from "../ui";
 import { useSidebarSide, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
-import { useToolbarLightsCenter } from "../../state/windows/layout";
+import { useAddressBarInSidebar, useToolbarLightsCenter } from "../../state/windows/layout";
+import { useHasDownloads } from "../../state/sidebar/hooks";
+import { useProfileIndicatorWidth } from "../profiles/ProfileIndicator";
+import { layout } from "../ui";
 import { Sidebar } from "../sidebar/Sidebar";
 import { dismissHoverIn } from "../../state/sidebar/hover";
 import { useSidebarUi } from "../../state/sidebar/sidebarUi";
@@ -47,6 +50,9 @@ import { useSidebarLights, useTopStripLights } from "./useDockLights";
 import { useCardFrame } from "./cardFrame";
 
 const SPRING = spring(DOCK_SPRING);
+
+// (fork) wash under the sidebar, over the window frame's material
+const SIDEBAR_GROUND = { dark: "rgba(0,0,0,0.5)", light: "rgba(0,0,0,0.06)" } as const;
 
 function useSidebarDock(open: boolean, animate: boolean, arc: boolean): { dock: Animated.Value; away: boolean } {
   const windowId = useWindowId();
@@ -207,6 +213,13 @@ function SidebarDock({
   const inHold = (stripX: number, y: number) => inPeekHold(fromSidebarEdgeInStrip(stripX, right), y, holdWidth, holdHeight.current);
   const peeking = peekOnScreen(state);
   const holding = state === "peeking";
+  // (fork) the peeking sidebar has no traffic lights, so the header row kept for them is dead space: pull the
+  // content up over it, unless that row is showing the profile name or the downloads button
+  const hasDownloads = useHasDownloads(windowId);
+  const profileShown = useProfileIndicatorWidth(1000) > 0;
+  const addressInSidebar = useAddressBarInSidebar();
+  const headerInUse = hasDownloads || profileShown || addressInSidebar;
+  const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
   const watching = watchesEdge(state, moving);
@@ -328,7 +341,10 @@ function SidebarDock({
               )}
             </Animated.View>
           )}
-          <View style={[{ flex: 1 }, peeking ? { borderRadius: peekAt.radius, overflow: "hidden" } : null]}>{sidebar}</View>
+          {/* (fork) the sidebar, docked or sliding in, keeps a darker ground of its own now that the window frame is lighter */}
+          <View style={[{ flex: 1, backgroundColor: theme.dark ? SIDEBAR_GROUND.dark : SIDEBAR_GROUND.light }, peeking ? { borderRadius: peekAt.radius, overflow: "hidden" } : null]}>
+            <View style={{ flex: 1, marginTop: -lift }}>{sidebar}</View>
+          </View>
         </Animated.View>
       </Animated.View>
     </>

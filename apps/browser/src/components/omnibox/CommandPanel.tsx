@@ -20,6 +20,8 @@ import { useToolbarRow } from "../toolbar/useToolbarRow";
 import { compactLift, urlFieldOf } from "../../lib/toolbarRow";
 import { radius, shadow, space } from "../ui/tokens";
 
+// (fork) the shadow under the mid-window command bar
+const FLOATING_SHADOW = { shadowColor: "#000000", shadowOpacity: 0.55, shadowRadius: 48, shadowOffset: [0, 16] as [number, number] };
 const RIGHT_OF_URL = 40;
 const ABOVE_PANE = 5.5;
 const PANEL_RADIUS = radius.hero;
@@ -59,8 +61,9 @@ export function CommandPanel({ windowWidth }: { windowWidth: number }) {
   const surface = (radius: number) => panelSurface(theme, radius);
 
   if (centred && card) {
+    // (fork) the mid-window command bar floats on a wide, soft shadow so it stands off the page behind it
     return (
-      <Grow from={null} frame={centredFrame(card)} openHeight={PANEL_OPEN_HEIGHT} radius={PANEL_RADIUS} surface={surface(PANEL_RADIUS)}>
+      <Grow from={null} frame={centredFrame(card)} openHeight={PANEL_OPEN_HEIGHT} radius={PANEL_RADIUS} surface={{ ...surface(PANEL_RADIUS), ...FLOATING_SHADOW }}>
         <OutsidePressArea onOutsidePress={onCancel}>
           <Omnibox key={activeId} variant="panel" floating tabId={activeId} initialText={panel.initialText} onCancel={onCancel} onDone={onDone} />
         </OutsidePressArea>
