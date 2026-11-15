@@ -23,6 +23,7 @@ check packages/shell/ios/AppUpdater.swift 'Bro is a personal fork of Ardia'
 T=$B/src/components/toolbar/Toolbar.tsx
 check $T '(fork) Zen-style toolbar'
 check $T 'const navStep = row.button + 4;'
+check $T 'const statusRight = '
 check $T '(fork) centre the domain on the toolbar'
 check $T '(fork) no container behind the address'
 check $T '(fork) no address field'

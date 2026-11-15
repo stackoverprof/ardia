@@ -98,8 +98,12 @@ export function Toolbar({
   const sidebarOnLeft = useSidebarSide(windowId) === "left";
   const fullScreen = useWindowFullScreen(windowId);
   const lightsInToolbar = sidebarLayout && sidebarOnLeft && !tabsShown && !inSplit && !fullScreen;
-  const right = urlFieldRight(inSplit, extensionsWidth, row);
-  const navStep = row.button + 4; // tighter than the stock spacing, with room between the hover plates
+  // One pitch for everything on the right: status icons, back, forward, reload, then (in a split pane) the split
+  // and close buttons. Each sits `navStep` from the next, centre to centre, with 4 pt between hover plates.
+  const navStep = row.button + 4;
+  const edge = 8; // from the pane's right edge to the last button
+  const right = (inSplit ? edge + 2 * navStep + 4 : edge + 4) + extensionsWidth;
+  const statusRight = right - 4 + 3 * navStep + row.button / 2 - space.xs - row.fieldButton / 2;
   const leftStart = lightsInToolbar ? layout.trafficLightsWidth : 8;
   const urlLeft = geometry.sidebarButton !== null ? leftStart + row.button + 4 : leftStart;
   const at = useMemo(() => {
@@ -135,7 +139,7 @@ export function Toolbar({
       timers.forEach(clearTimeout);
     };
   }, [windowId, lightsInToolbar, row]);
-  const urlStyle = useMemo(() => ({ position: "absolute" as const, left: urlLeft, right: right + 3 * navStep, top: urlFieldOf(row).top }), [urlLeft, right, navStep, row]);
+  const urlStyle = useMemo(() => ({ position: "absolute" as const, left: urlLeft, right: statusRight, top: urlFieldOf(row).top }), [urlLeft, statusRight, row]);
   if (!tab) return <View style={{ height: row.height }} />;
 
   return (
@@ -159,12 +163,12 @@ export function Toolbar({
         <HistoryButton place={at.back} tabId={tab.id} windowId={tab.windowId} direction={-1} disabled={!history.back} palette={palette} onFocus={focus} />
         <HistoryButton place={at.forward} tabId={tab.id} windowId={tab.windowId} direction={1} disabled={!history.forward} palette={palette} onFocus={focus} />
         <ReloadButton place={at.reload} tab={tab} loading={isLoading} palette={palette} onFocus={focus} />
-        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? 8 + 2 * row.button : 8} />
+        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? edge + 2 * navStep : edge} />
         {tab.url ? (
           <ToolbarUrlField tab={tab} palette={palette} windowId={windowId} inSplit={inSplit} onFocus={focus} style={urlStyle} />
         ) : null}
         {inSplit && (
-          <View style={{ position: "absolute", top: at.top, right: 8, flexDirection: "row", gap: -space.xxs }}>
+          <View style={{ position: "absolute", top: at.top, right: edge, flexDirection: "row", gap: navStep - row.button }}>
             <Button variant="icon" toolbar palette={palette} icon="rectangle.split.2x1" look="row" onPress={() => showSplitMenu(tab.id)} tooltip="Split View" />
             <Button variant="icon" toolbar palette={palette} icon="xmark" look="row" weight="medium" onPress={() => closePane(tab.id)} tooltip="Close Pane" />
           </View>
