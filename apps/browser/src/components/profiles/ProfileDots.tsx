@@ -20,6 +20,11 @@ const { band: BAND, dotTooltipLift } = profileSwitcher;
 const SIDE_ROOM = layout.sidebarInset;
 const SIDE_ROOM_BESIDE_DOWNLOADS = SIDEBAR_FOOTER_DOWNLOADS.left + SIDEBAR_FOOTER_DOWNLOADS.size + 4;
 
+// (fork) the name's hover plate sits the same distance from the left edge as from the top and bottom, and the last
+// dot ends as far from the right edge as the name's text starts from the left
+const FOOTER_EDGE = (PROFILE_DOTS_HEIGHT - 34) / 2;
+const FOOTER_DOTS_RIGHT = FOOTER_EDGE + 9 - (profileSwitcher.dotCell - profileSwitcher.dot) / 2;
+
 export function useProfileDotsShown() {
   const incognito = useIsIncognito();
   const count = useProfileOrder((o) => o.length);
@@ -35,7 +40,7 @@ export function ProfileDots({ windowId, width, besideDownloads }: { windowId: st
   // (fork) the profile's name sits here in the footer, just before the dots: "Name . ."
   const incognito = useIsIncognito();
   return (
-    <View style={{ height: PROFILE_DOTS_HEIGHT, paddingBottom: 3, paddingHorizontal: SIDE_ROOM + 4, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+    <View style={{ height: PROFILE_DOTS_HEIGHT, paddingLeft: FOOTER_EDGE, paddingRight: FOOTER_DOTS_RIGHT, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
       <ProfileIndicator room={Math.max(0, width * 0.55)} />
       {incognito ? null : (
         <View style={{ height: BAND, flexDirection: "row" }}>
