@@ -197,7 +197,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
       )}
       <ContextMenuArea style={{ flex: 1 }} onContextMenu={() => void showUrlBarMenu(tab)}>
         <Pressable onPress={field.openPanel} style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: insecure ? LOCK.gap : urlTextLeft(false) }}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
             <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
               {field.host}
             </Text>
