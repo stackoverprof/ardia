@@ -188,10 +188,8 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
   const balance = leftInset - rightInset;
 
   return (
-    <View {...field.hoverProps} style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius, backgroundColor: hovered && !glass ? palette.pill : undefined }]}>
-      {glass ? (
-        <GlassFill state={hovered ? "lit" : "rest"} radius={row.fieldRadius} dark={palette.background ? palette.text.startsWith(ink.white) : undefined} />
-      ) : null}
+    <View {...field.hoverProps} style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius }]}>
+      {/* (fork) no container behind the address: it takes the toolbar's own colour, at rest and on hover */}
       {insecure && (
         <Pressable onPress={toggleSiteControls} style={{ paddingLeft: LOCK.left }} tooltip="Connection is not secure">
           <Symbol
