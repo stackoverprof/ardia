@@ -1,19 +1,19 @@
 {
   "fill": {
-    "solid": "srgb:0.07000,0.07000,0.07000,1.00000"
+    "solid": "srgb:0.96500,0.96500,0.96500,1.00000"
   },
   "groups": [
     {
       "layers": [
         {
           "glass": false,
-          "image-name": "globe.png",
-          "name": "globe"
+          "image-name": "dots.png",
+          "name": "dots"
         }
       ],
       "shadow": {
         "kind": "neutral",
-        "opacity": 0.3
+        "opacity": 0.15
       },
       "specular": false,
       "translucency": {
