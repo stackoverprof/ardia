@@ -32,7 +32,7 @@ import { ZoomIndicator } from "../site/ZoomControls";
 import { useShortcutHint, withShortcut } from "../../state/commands/commandShortcuts";
 import { curve } from "../ui/motion";
 import { HistoryButton, ReloadButton } from "./NavButtons";
-import { ProgressBar, TabProgressBar } from "./ProgressBar";
+import { LoadingPill, ProgressBar } from "./ProgressBar";
 import { TOOLBAR_MOTION } from "./tokens";
 import { useToolbarRow } from "./useToolbarRow";
 
@@ -176,7 +176,7 @@ export function Toolbar({
       </Animated.View>
 
       {tab.url && !bare ? <Divider color={palette.divider} style={BOTTOM_LINE} /> : null}
-      {isLoading && <TabProgressBar key={tabId} tabId={tabId} color={palette.background ? palette.icon : theme.accent} />}
+      {/* (fork) the loading bar is a pill in the domain's place (ToolbarUrlField), not a line on the bottom edge */}
     </View>
   );
 }
@@ -231,6 +231,12 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
   const leftInset = (typeof style.left === "number" ? style.left : 0) + (insecure ? LOCK.left + LOCK.width : 0) + textLeft;
   const rightInset = (typeof style.right === "number" ? style.right : 0) + buttonsWidth;
   const balance = leftInset - rightInset;
+  // (fork) while the tab loads, a small pill takes the domain's place; they cross-fade
+  const loading = useTabLive(tab.id, (l) => l.isLoading);
+  const swap = useRef(new Animated.Value(loading ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(swap, { toValue: loading ? 1 : 0, duration: 200, easing: curve.enter, useNativeDriver: true }).start();
+  }, [loading]);
 
   return (
     <View pointerEvents="box-none" style={[style, { flexDirection: "row", alignItems: "center", height: row.field, borderRadius: row.fieldRadius }]}>
@@ -249,11 +255,16 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           the empty toolbar either side of it still drags the window. */}
       <View pointerEvents="box-none" style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-          <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center", paddingHorizontal: 8, opacity: domain.hovered ? 1 : DOMAIN_REST }}>
-            <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
-              {field.host}
-            </Text>
-          </Pressable>
+          <Animated.View style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
+            <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center", paddingHorizontal: 8, opacity: domain.hovered ? 1 : DOMAIN_REST }}>
+              <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
+                {field.host}
+              </Text>
+            </Pressable>
+          </Animated.View>
+          <Animated.View pointerEvents="none" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: swap }}>
+            {loading && <LoadingPill key={tab.id} tabId={tab.id} color={palette.text} />}
+          </Animated.View>
         </View>
       </View>
       <View onLayout={(e) => setButtonsWidth(e.nativeEvent.layout.width)}>

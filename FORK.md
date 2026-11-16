@@ -28,6 +28,7 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 - Back, forward and reload sit on the **right**, before the extensions, 4 pt between their hover plates.
 - **No address field.** Only the domain shows, centred on the toolbar's full width, with no container behind it.
   At rest it is a shade of the toolbar's tint (50%); on hover it is full ink. Clicking it opens the command bar.
+- **Loading pill.** While a page loads, a small 40 x 4 pill in the page ink takes the domain's place (they cross-fade), as in Zen. No hairline along the toolbar's bottom edge.
   The hover-only field buttons (bookmark, copy link, split, site controls) are gone; status icons stay.
 - **Traffic lights at the toolbar's left** when the sidebar is hidden. At rest they are quiet dots in the page's
   ink, drawn by the toolbar on the real buttons' frames; hovering the corner shows the real coloured lights.
