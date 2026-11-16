@@ -53,4 +53,5 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 ## The ardia command
 
 - **Control pill on the driven tab only.** "Claude Code is controlling Bro" shows only on the tab an `ardia browse` session drives, not on every tab in every profile. The CLI tells Bro which page it drives after each command (`using`, in `browse/state.py` and `control.py`); Bro maps it to a tab (`controlSocket.ts`) and the pill checks it (`CliControlPill.tsx`).
+- **Sleeping tabs wake on their own.** Driving a tab Bro keeps asleep (`ardia browse tab <tab-id>` on a tab not shown since launch, or put to sleep) wakes it in the background and waits for its page, instead of failing with `tab_asleep` and needing a click (`wake_app_tab` in `browse/tabs.py`).
 - The ardia command itself is upstream's release download, so `scripts/bro/cli-patch.sh` copies the fork's CLI files over it. `install.sh` runs it; re-run it after the CLI updates.

@@ -47,6 +47,7 @@ check $B/src/components/sidebar/Sidebar.tsx 'const footerDownloads = hasDownload
 check $B/src/components/toolbar/Toolbar.tsx '<LoadingPill key={tab.id}'
 check $B/src/components/window/CliControlPill.tsx 'Object.values(s.tabs).includes(tabId)'
 check apps/cli/ardia_cli/browse/state.py 'async def announce_target'
+check apps/cli/ardia_cli/browse/tabs.py 'async def wake_app_tab'
 
 check packages/shell/ios/WindowManager.swift 'final class QuietLights'
 check packages/shell/ios/AppWindowsModule.swift 'AsyncFunction("setTrafficLightsQuiet")'

@@ -96,6 +96,40 @@ async def app_tab_map(state) -> dict[str, str]:
     return {target: entry["app"] for target, entry in paired.items()}
 
 
+WAKE_WAIT = 8.0
+
+
+async def wake_app_tab(state, app_tab: str) -> dict | None:
+    """(fork) Asks Ardia to load a sleeping tab, still in the background, then waits for its page to show up."""
+    from ardia_cli import control
+
+    path = control_socket(state)
+    if path is None:
+        return None
+    try:
+        connection = await control.connect(path, WINDOWS_TIMEOUT, state.caller)
+        try:
+            await connection.call("apply", {"ops": [{"op": "tab.wake", "tabs": [app_tab]}]}, WINDOWS_TIMEOUT)
+        finally:
+            await connection.close()
+    except Exception:
+        return None
+    deadline = time.monotonic() + WAKE_WAIT
+    while time.monotonic() < deadline:
+        await asyncio.sleep(0.25)
+        rows = app_tab_rows(await app_windows(state))
+        tab = next((row for row in rows if row["id"] == app_tab), None)
+        if tab is None:
+            return None
+        target = tab.get("targetId")
+        if isinstance(target, str):
+            if target not in state.target_infos and hasattr(state, "refresh_targets"):
+                await state.refresh_targets()
+            if target in state.target_infos:
+                return tab
+    return None
+
+
 async def app_tab_target(state, app_tab: str) -> dict:
     windows = await app_windows(state)
     if windows is None:
@@ -108,6 +142,9 @@ async def app_tab_target(state, app_tab: str) -> dict:
         return {"error": f"This Ardia doesn't say which page belongs to {app_tab} (an update adds it); use the [tN] ids `ardia browse tab list` prints",
                 "code": "tab_not_found"}
     target = tab.get("targetId")
+    if not isinstance(target, str):
+        tab = await wake_app_tab(state, app_tab) or tab  # (fork) load a sleeping tab in the background instead of failing
+        target = tab.get("targetId")
     if not isinstance(target, str):
         return {"error": f"{app_tab} is open in Ardia but its page isn't loaded (Ardia keeps background tabs asleep until they're shown), "
                          "so there's nothing to drive yet; click it in Ardia, or `ardia browse open <url>` for a copy",
