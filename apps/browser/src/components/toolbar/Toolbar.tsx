@@ -263,7 +263,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
             </Pressable>
           </Animated.View>
           <Animated.View pointerEvents="none" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: swap }}>
-            {loading && <LoadingPill key={tab.id} tabId={tab.id} color={palette.text} />}
+            {loading && <LoadingPill key={tab.id} color={palette.text} />}
           </Animated.View>
         </View>
       </View>
