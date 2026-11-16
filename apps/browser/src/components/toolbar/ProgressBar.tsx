@@ -24,13 +24,15 @@ export function ProgressBar({ progress, color }: { progress: number; color: stri
 }
 
 // (fork) Zen-style loading pill: a short rounded track centred where the domain sits, standing in for the domain
-// while the tab loads. A brighter bar sweeps through it left to right, over and over (no real progress shown).
-const PILL = { width: 40, height: 4, bar: 14, fill: 0.85, track: 0.2, sweep: 1100 } as const;
+// while the tab loads. A brighter bar stretches out from the left, then its tail catches up and it leaves on the
+// right, over and over (no real progress shown).
+const PILL = { width: 40, height: 4, fill: 0.85, track: 0.2, cycle: 1100 } as const;
 
 export const LoadingPill = memo(function LoadingPill({ color }: { color: string }) {
-  const sweep = useRef(new Animated.Value(0)).current;
+  const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    const loop = Animated.loop(Animated.timing(sweep, { toValue: 1, duration: PILL.sweep, easing: Easing.inOut(Easing.quad), useNativeDriver: true }));
+    // left and width are layout props, so this runs on the JS driver; the pill is tiny
+    const loop = Animated.loop(Animated.timing(t, { toValue: 1, duration: PILL.cycle, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: false }));
     loop.start();
     return () => loop.stop();
   }, []);
@@ -39,12 +41,14 @@ export const LoadingPill = memo(function LoadingPill({ color }: { color: string 
       <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, backgroundColor: color, opacity: PILL.track }} />
       <Animated.View
         style={{
-          width: PILL.bar,
+          position: "absolute",
+          top: 0,
           height: PILL.height,
           borderRadius: PILL.height / 2,
           backgroundColor: color,
           opacity: PILL.fill,
-          transform: [{ translateX: sweep.interpolate({ inputRange: [0, 1], outputRange: [-PILL.bar, PILL.width] }) }],
+          left: t.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, PILL.width] }),
+          width: t.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, PILL.width, 0] }),
         }}
       />
     </View>
