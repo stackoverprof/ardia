@@ -19,6 +19,9 @@ ditto "$app" /Applications/Bro.app && codesign -v /Applications/Bro.app || { ech
 # one, from the icon cache) for Bro in the Dock. Unregister it and register only the installed app.
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 $lsregister -u "$app" >/dev/null 2>&1
+# Old copies moved to the Trash by earlier installs stay registered too; the Dock can show any of their icons.
+$lsregister -dump 2>/dev/null | awk '/^path:/{sub(/^path: */,""); sub(/ \(0x[0-9a-f]+\)$/,""); p=$0} /identifier:.*is\.erbin\.ardia$/{print p}' \
+  | grep -F "/.Trash/" | while IFS= read -r old; do $lsregister -u "$old" >/dev/null 2>&1; done
 $lsregister -f /Applications/Bro.app
 open -a /Applications/Bro.app
 echo "Installed and reopened Bro ($(git log --oneline -1 | cut -c1-60))."
