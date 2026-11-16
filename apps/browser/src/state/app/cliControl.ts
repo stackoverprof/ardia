@@ -72,7 +72,15 @@ export const useCli = create<CliState>()(() => ({
   error: saved.error ?? null,
 }));
 
-export const useCliIndicator = create<{ shown: boolean; caller: CliCaller | null }>()(() => ({ shown: false, caller: null }));
+// (fork) `tabs`: the tab each `ardia browse` session drives (session -> tab id). The pill shows on those tabs only.
+export const useCliIndicator = create<{ shown: boolean; caller: CliCaller | null; tabs: Record<string, string> }>()(() => ({ shown: false, caller: null, tabs: {} }));
+
+export function noteCliUsingTab(session: string, tabId: string | null) {
+  const tabs = { ...useCliIndicator.getState().tabs };
+  if (tabId) tabs[session] = tabId;
+  else delete tabs[session];
+  useCliIndicator.setState({ tabs });
+}
 
 let indicatorHide: ReturnType<typeof setTimeout> | null = null;
 let socketRuns = 0;
@@ -85,7 +93,7 @@ function showIndicator(shown: boolean) {
   if (!shown) hiddenStep = ++indicatorStep;
   else noteCliPillShown();
   const caller = shown && callerStep < hiddenStep ? null : useCliIndicator.getState().caller;
-  useCliIndicator.setState({ shown, caller });
+  useCliIndicator.setState(shown ? { shown, caller } : { shown, caller, tabs: {} });
 }
 
 export function noteCliCaller(caller: CliCaller) {

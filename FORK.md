@@ -49,3 +49,8 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 ## Window frame
 
 - A thinner, **lighter** wash over the blurred desktop (white wash in dark mode), so the frame reads as see-through.
+
+## The ardia command
+
+- **Control pill on the driven tab only.** "Claude Code is controlling Bro" shows only on the tab an `ardia browse` session drives, not on every tab in every profile. The CLI tells Bro which page it drives after each command (`using`, in `browse/state.py` and `control.py`); Bro maps it to a tab (`controlSocket.ts`) and the pill checks it (`CliControlPill.tsx`).
+- The ardia command itself is upstream's release download, so `scripts/bro/cli-patch.sh` copies the fork's CLI files over it. `install.sh` runs it; re-run it after the CLI updates.

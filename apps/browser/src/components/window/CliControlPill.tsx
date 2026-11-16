@@ -11,9 +11,10 @@ import { CLI_PILL_MOTION } from "./tokens";
 const PILL_HEIGHT = 32;
 const PILL_BOTTOM = 12;
 
-export function CliControlPill({ style }: { style?: Animated.WithAnimatedValue<ViewStyle> }) {
+export function CliControlPill({ tabId, style }: { tabId: string; style?: Animated.WithAnimatedValue<ViewStyle> }) {
   const theme = useTheme();
-  const shown = useCliIndicator((s) => s.shown);
+  // (fork) only on the tab the ardia command is driving, not on every tab in every profile
+  const shown = useCliIndicator((s) => s.shown && Object.values(s.tabs).includes(tabId));
   const caller = useCliIndicator((s) => s.caller);
   const icon = useAppIcon(caller?.app ?? null);
   const line = controlLine(caller);

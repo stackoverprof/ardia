@@ -74,6 +74,7 @@ class State:
         self.background_live: bool | None = None
         self.caller: Caller | None = None
         self.announced: Caller | None = None
+        self.announced_target: str | None = None  # (fork) the tab Bro was last told this session drives
 
     @property
     def current(self) -> str | None:
@@ -108,6 +109,7 @@ class State:
             )
         browser = Browser(endpoint, self.on_event)
         self.announced = None
+        self.announced_target = None  # (fork) Bro forgets the tab when control goes idle
         announcing = asyncio.ensure_future(self.announce_caller(endpoint))
         try:
             await browser.open()
@@ -135,6 +137,19 @@ class State:
             return
         self.announced = caller
         await control.announce(control.announce_path(endpoint.source), caller)
+
+    async def announce_target(self):
+        # (fork) tell Bro which tab this session drives, so it shows "... is controlling Bro" on that tab only
+        target = self.current if self.connected else None
+        if target == self.announced_target:
+            return
+        from ardia_cli.browse.tabs import control_socket
+
+        path = control_socket(self)
+        if path is None:
+            return
+        self.announced_target = target
+        await control.tell(path, "using", {"targetId": target, "session": self.registry.key or self.session}, self.caller)
 
     async def disconnect(self):
         browser, self.browser = self.browser, None

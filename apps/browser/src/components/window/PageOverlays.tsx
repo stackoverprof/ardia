@@ -58,7 +58,7 @@ export function PageOverlays({
         <StatusBubble tabId={tabId} maxWidth={Math.max(160, width / 2)} />
       </Animated.View>
       <SadTab tabId={tabId} />
-      {cliPill && <CliControlPill style={statusStyle} />}
+      {cliPill && <CliControlPill tabId={tabId} style={statusStyle} />}
       {!newTabShown && <PermissionPrompt tabId={tabId} {...at("prompt", PERMISSION_PROMPT_WIDTH)} />}
       <PasswordPrompt tabId={tabId} right={POPOVER_MARGIN} top={POPOVER_MARGIN} />
       <AutofillPrompt tabId={tabId} right={POPOVER_MARGIN} top={POPOVER_MARGIN} />

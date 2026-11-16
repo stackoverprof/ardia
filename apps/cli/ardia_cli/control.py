@@ -334,6 +334,21 @@ async def announce(path: Path, caller: Caller) -> None:
         pass
 
 
+async def tell(path: Path, method: str, params, caller: Caller | None = None) -> None:
+    # (fork) best-effort one-shot message to the app, like announce()
+    async def send():
+        connection = await connect(path, ANNOUNCE_TIMEOUT, caller)
+        try:
+            await connection.call(method, params, timeout=ANNOUNCE_TIMEOUT)
+        finally:
+            await connection.close()
+
+    try:
+        await asyncio.wait_for(send(), ANNOUNCE_TIMEOUT)
+    except Exception:
+        pass
+
+
 def announce_path(control_file: str) -> Path:
     return Path(control_file).parent.parent / SOCKET_FILE
 

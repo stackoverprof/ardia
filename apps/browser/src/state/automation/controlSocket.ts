@@ -13,7 +13,7 @@ import {
 import { systemInfo } from "../../platform/app";
 import { useBrowser } from "../browser/store";
 import { NoCommandWindowError, runCommand } from "../commands/commands";
-import { noteCliCaller, noteSocketRun, noteSocketServing } from "../app/cliControl";
+import { noteCliCaller, noteCliUsingTab, noteSocketRun, noteSocketServing } from "../app/cliControl";
 import { parseCliCaller, type CliCaller } from "../app/cliCaller";
 import { errorText } from "../../lib/errors";
 import { minimizedUrl } from "../../lib/urlParts";
@@ -132,6 +132,21 @@ export async function windowsWithTargets(windows: AutomationWindow[]): Promise<A
   }));
 }
 
+// (fork) map the page's target id to Bro's tab and remember it per session, for the control pill
+async function usingTab(params: Record<string, unknown>) {
+  const session = typeof params.session === "string" && params.session ? params.session : "default";
+  const targetId = typeof params.targetId === "string" ? params.targetId : null;
+  if (!targetId) {
+    noteCliUsingTab(session, null);
+    return { ok: true, tabId: null };
+  }
+  const ids = Object.keys(useBrowser.getState().tabs);
+  const targets = ids.length ? await cliTabTargets(ids).catch(() => ({}) as Record<string, { targetId: string | null }>) : {};
+  const tabId = ids.find((id) => targets[id]?.targetId === targetId) ?? null;
+  noteCliUsingTab(session, tabId);
+  return { ok: true, tabId };
+}
+
 function subscribe(connection: number, params: Record<string, unknown>): Body {
   const sub = parseSubscription(params);
   if ("error" in sub) return sub;
@@ -156,6 +171,8 @@ function answer(connection: number, method: string, params: Record<string, unkno
       if (caller) noteCliCaller(caller);
       return { result: { ok: !!caller } };
     }
+    case "using": // (fork) an `ardia browse` session says which page it drives
+      return usingTab(params).then((result) => ({ result }));
     case "commands":
       return { result: commands() };
     case "windows":

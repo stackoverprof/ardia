@@ -45,6 +45,8 @@ check $B/src/components/profiles/ProfileDots.tsx '<ProfileIndicator room='
 check $B/src/components/profiles/ProfileDots.tsx 'FOOTER_EDGE'
 check $B/src/components/sidebar/Sidebar.tsx 'const footerDownloads = hasDownloads;'
 check $B/src/components/toolbar/Toolbar.tsx '<LoadingPill key={tab.id}'
+check $B/src/components/window/CliControlPill.tsx 'Object.values(s.tabs).includes(tabId)'
+check apps/cli/ardia_cli/browse/state.py 'async def announce_target'
 
 check packages/shell/ios/WindowManager.swift 'final class QuietLights'
 check packages/shell/ios/AppWindowsModule.swift 'AsyncFunction("setTrafficLightsQuiet")'

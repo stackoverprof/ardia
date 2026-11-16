@@ -403,6 +403,7 @@ class Daemon:
             except asyncio.TimeoutError:
                 code, out, err = render(options, error=timed_out(name, limit), name=name)
             await self.restore_metrics()
+            await self.state.announce_target()  # (fork)
             notice = self.state.extras.pop("notice", None)
             err = (redact_text(notice) + "\n" if notice else "") + err
             close_after = self.state.extras.pop("close_after_batch", None) and name == "batch" and code == 0
