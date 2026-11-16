@@ -22,6 +22,10 @@ $lsregister -u "$app" >/dev/null 2>&1
 # Old copies moved to the Trash by earlier installs stay registered too; the Dock can show any of their icons.
 $lsregister -dump 2>/dev/null | awk '/^path:/{sub(/^path: */,""); sub(/ \(0x[0-9a-f]+\)$/,""); p=$0} /identifier:.*is\.erbin\.ardia$/{print p}' \
   | grep -F "/.Trash/" | while IFS= read -r old; do $lsregister -u "$old" >/dev/null 2>&1; done
+# ditto keeps the build folder's old date, and macOS keys its icon cache on it: bump it so a new icon shows.
+touch /Applications/Bro.app /Applications/Bro.app/Contents /Applications/Bro.app/Contents/Info.plist
 $lsregister -f /Applications/Bro.app
+rm -f "$(getconf DARWIN_USER_CACHE_DIR)com.apple.dock.iconcache"
+killall Dock 2>/dev/null || true
 open -a /Applications/Bro.app
 echo "Installed and reopened Bro ($(git log --oneline -1 | cut -c1-60))."
