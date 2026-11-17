@@ -18,6 +18,8 @@ export const CONFIG_SETTING_KEYS: readonly SettingKey[] = [
 export const CONFIG_EXCLUDED_KEYS: readonly SettingKey[] = [
   "customSearchUrl", "customSearchEngines", "extensionSearchEngines", "allowJavaScriptFromAppleEvents", "cliControl", "defaultProfileId",
   "pageEngine", "websiteEngines", "protectedVideoInWebKit",
+  // (fork) Agent mode is set from the sidebar only, so an agent can't change which profile is its own
+  "agentProfileId", "humanProfileId", "agentSidebarSide", "agentAutoHideTabs", "humanSidebarSide", "humanAutoHideTabs",
 ];
 
 const ALLOWED: ReadonlySet<string> = new Set(CONFIG_SETTING_KEYS);

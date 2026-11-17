@@ -21,6 +21,9 @@ import { copyPageUrl } from "../../state/site/selection";
 import { closePane, openSplitPane, showSplitMenu } from "../../state/splits/actions";
 import { useEasedColor, type ToolbarPalette } from "../ui/toolbarColors";
 import { useSitePalette } from "./useSitePalette";
+import { HazardStripes } from "./HazardStripes";
+import { useBrowser } from "../../state/browser/store";
+import { isAgentProfile } from "../../state/profiles/agentMode";
 import { setToolbarExtensionsWidth } from "../../state/windows/layout";
 import { SIDEBAR_FIELD } from "../sidebar/geometry";
 import { FieldSiteButton, SidebarFieldFill } from "../sidebar/SidebarField";
@@ -78,6 +81,7 @@ export function Toolbar({
   const isLoading = useTabLive(tabId, (l) => l.isLoading);
   const palette = useSitePalette(tabId);
   const band = useEasedColor(bare ? null : palette.background);
+  const agentMode = useBrowser((s) => isAgentProfile(s, s.windows[windowId]?.profileId)); // (fork) Agent mode stripes
   const history = useHistoryAvailability(tabId);
   const row = useToolbarRow();
   const extensionsWidth = useToolbarExtensionsWidth(windowId, Infinity);
@@ -145,6 +149,7 @@ export function Toolbar({
   return (
     <View ref={bar} style={{ height: row.height }}>
       {!bare && <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />}
+      {!bare && agentMode ? <HazardStripes color={palette.text} /> : null}
       <WindowDragRegion style={StyleSheet.absoluteFill} />
       {dots.map(([x = 0, y = 0, side = 0, w = 0, h = 0], i) => (
         <View key={i} pointerEvents="none" style={{ position: "absolute", left: x + (w - side) / 2, top: y + (h - side) / 2, width: side, height: side, borderRadius: side / 2, backgroundColor: palette.text, opacity: 0.22 }} />
@@ -175,13 +180,15 @@ export function Toolbar({
         )}
       </Animated.View>
 
-      {tab.url && !bare ? <Divider color={palette.divider} style={BOTTOM_LINE} /> : null}
+      {/* (fork) the bottom hairline is a full point in the page's ink, so it shows on every site tint */}
+      {tab.url && !bare ? <View pointerEvents="none" style={[BOTTOM_LINE, { height: 1, backgroundColor: palette.text, opacity: HAIRLINE_OPACITY }]} /> : null}
       {/* (fork) the loading bar is a pill in the domain's place (ToolbarUrlField), not a line on the bottom edge */}
     </View>
   );
 }
 
 const BOTTOM_LINE = { position: "absolute", left: 0, right: 0, bottom: 0 } as const;
+const HAIRLINE_OPACITY = 0.12;
 
 export function ToolbarBackdrop({ tabId }: { tabId: string }) {
   const url = useTab(tabId, (t) => t?.url ?? "");

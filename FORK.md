@@ -50,6 +50,13 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 
 - A thinner, **lighter** wash over the blurred desktop (white wash in dark mode), so the frame reads as see-through.
 
+## Agent mode
+
+- **Human / Agent switch** at the very bottom of the sidebar. Agent mode is the agents' profile (the one named Claude, or `agentProfileId`); Human mode goes back to the last human profile (`state/profiles/agentMode.ts`, `components/profiles/AgentModeSwitch.tsx`).
+- **Each mode keeps its own sidebar side and auto-hide** (`agentSidebarSide`, `agentAutoHideTabs`, `human…`), swapped into the live settings when a window crosses modes (`switchProfile` in `state/windows/windows.ts`). Agent mode starts with the sidebar on the right, not auto-hiding. These settings are left out of the config file, so an agent can't change them.
+- **Caution-tape stripes on the toolbar** in Agent mode, the page's ink at 7% over the site's tint (`HazardStripes.tsx`).
+- **Stronger toolbar hairline:** 1 pt in the page's ink at 12%, instead of a hairline-width divider that vanishes on low-DPI screens.
+
 ## The ardia command
 
 - **Control pill on the driven tab only.** "Claude Code is controlling Bro" shows only on the tab an `ardia browse` session drives, not on every tab in every profile. The CLI tells Bro which page it drives after each command (`using`, in `browse/state.py` and `control.py`); Bro maps it to a tab (`controlSocket.ts`) and the pill checks it (`CliControlPill.tsx`).

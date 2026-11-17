@@ -28,6 +28,7 @@ import { activated, apply, removeTabs, withNewTab } from "../tabs/tabs";
 import type { AdoptId, BrowserWindow, ClosedWindow, Frame, ParkedPins, Tab, WindowKind } from "../browser/types";
 import { emptyWindow, smallWindow, withWindow } from "./newWindow";
 import { choose } from "../settings/settings";
+import { modeSwap } from "../profiles/agentMode";
 import { lastClosedEntry, lastClosedTab, restoreTab, restoreWindow } from "./reopenClosed";
 import { groupTree, regrouped, splitsWithin, withSplitsBack } from "./groupMoves";
 import { commonGroup, orderSections } from "../groups/groups";
@@ -267,6 +268,8 @@ export const createWindowsSlice: StateCreator<BrowserState, [], [], WindowsSlice
     if (swapped) [s, target] = [swapped.state, swapped.holderId];
     s = apply(s, activated(s, target));
     if (focusedWindowOf(s) === windowId) s = { ...s, ui: { ...s.ui, lastProfileId: profileId } };
+    const swap = modeSwap(s, w.profileId, profileId); // (fork) crossing between Human and Agent mode swaps the sidebar's layout
+    if (swap) s = { ...s, ...choose(s, swap) };
     set(s);
   },
 

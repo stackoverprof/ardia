@@ -10,6 +10,7 @@ import { DownloadsButton } from "../downloads/DownloadsButton";
 import { PROFILE_INDICATOR_X, ProfileIndicator } from "../profiles/ProfileIndicator";
 import { usePagerPages } from "../../state/windows/profilePager";
 import { PROFILE_DOTS_HEIGHT, ProfileDots, useProfileDotsShown } from "../profiles/ProfileDots";
+import { AGENT_SWITCH_HEIGHT, AgentModeSwitch, useAgentSwitchShown } from "../profiles/AgentModeSwitch";
 import { SidebarAddressRow, SidebarHeaderTools } from "./AddressBar";
 import { DragGhost } from "./DragGhost";
 import { DragProvider } from "./DragProvider";
@@ -46,7 +47,8 @@ export function Sidebar({ width }: { width: number }) {
   const hasDownloads = useHasDownloads(windowId);
   const dots = useProfileDotsShown();
   const footerDownloads = hasDownloads; // (fork) the downloads button always lives in the footer: nothing sits above the pinned tiles
-  const footer = dots || footerDownloads ? PROFILE_DOTS_HEIGHT : 0;
+  const modeSwitch = useAgentSwitchShown() ? AGENT_SWITCH_HEIGHT : 0; // (fork) the Human / Agent switch, below everything
+  const footer = (dots || footerDownloads ? PROFILE_DOTS_HEIGHT : 0) + modeSwitch;
   const nothingPinned = useNoTiles(windowId, current);
   const rowLook = useSidebarRowLookSource();
 
@@ -114,8 +116,13 @@ export function Sidebar({ width }: { width: number }) {
                   <ContextMenuArea style={StyleSheet.absoluteFill} onContextMenu={() => void openSidebarMenu(windowId)} />
                   {dots ? <ProfileDots windowId={windowId} width={width} besideDownloads={footerDownloads} /> : null}
                   {footerDownloads ? (
-                    <View style={{ position: "absolute", left: (footer - SIDEBAR_FOOTER_DOWNLOADS.size) / 2, bottom: (footer - SIDEBAR_FOOTER_DOWNLOADS.size) / 2 }}>
+                    <View style={{ position: "absolute", left: (footer - modeSwitch - SIDEBAR_FOOTER_DOWNLOADS.size) / 2, bottom: modeSwitch + (footer - modeSwitch - SIDEBAR_FOOTER_DOWNLOADS.size) / 2 }}>
                       <DownloadsButton windowId={windowId} />
+                    </View>
+                  ) : null}
+                  {modeSwitch ? (
+                    <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+                      <AgentModeSwitch windowId={windowId} edge={layout.sidebarInset} />
                     </View>
                   ) : null}
                 </View>
