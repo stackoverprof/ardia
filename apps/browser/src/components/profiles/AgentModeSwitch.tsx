@@ -8,8 +8,8 @@ import { useIsIncognito, useWindowProfileId } from "../../state/browser/hooks";
 import { radius, Symbol, Text, useHover, useTheme } from "../ui";
 
 export const AGENT_SWITCH_HEIGHT = 40;
-const TRACK = 28;
-const INSET = 2;
+const ROW = 32;
+const PAD = 9;
 
 export function useAgentSwitchShown(): boolean {
   const incognito = useIsIncognito();
@@ -23,42 +23,38 @@ export function AgentModeSwitch({ windowId, edge }: { windowId: string; edge: nu
   const agentId = useBrowser((s) => agentProfileIdOf(s));
   const humanId = useBrowser((s) => humanProfileIdOf(s));
   const agent = !!agentId && current === agentId;
-  const go = (toAgent: boolean) => {
-    const target = toAgent ? agentId : humanId;
+  const { hovered, hoverProps } = useHover();
+  const title = agent ? "Agent mode" : "Human mode";
+  const other = agent ? "Human mode" : "Agent mode";
+  const ink = hovered ? theme.textPrimary : theme.textSecondary;
+  const go = () => {
+    const target = agent ? humanId : agentId;
     if (target && target !== current) switchProfile(windowId, target, true);
   };
+  // one row, "(icon) Human mode  ->": it shows the mode you're in, and a press switches to the other
   return (
     <View style={{ height: AGENT_SWITCH_HEIGHT, paddingHorizontal: edge, justifyContent: "center" }}>
-      <View style={{ height: TRACK, borderRadius: radius.chrome, flexDirection: "row", padding: INSET, backgroundColor: theme.tabHover }}>
-        <Half on={!agent} icon="person.fill" title="Human" onPress={() => go(false)} />
-        <Half on={agent} icon="sparkles" title="Agent" onPress={() => go(true)} />
-      </View>
+      <Pressable {...hoverProps} tooltip={`Switch to ${other}`} accessibilityRole="button" accessibilityLabel={`${title}, switch to ${other}`} onPress={go}>
+        {({ pressed }) => (
+          <View
+            style={{
+              height: ROW,
+              borderRadius: radius.chrome,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: PAD,
+              gap: 7,
+              backgroundColor: pressed ? theme.tabPressed : hovered ? theme.tabHover : undefined,
+            }}
+          >
+            <Symbol name={agent ? "sparkles" : "person.fill"} size={12} weight="semibold" color={ink} style={{ width: 16, height: 16 }} />
+            <Text numberOfLines={1} weight="semibold" style={{ flex: 1, color: ink }}>
+              {title}
+            </Text>
+            <Symbol name="arrow.right" size={11} weight="semibold" color={ink} style={{ width: 14, height: 14, opacity: hovered ? 1 : 0.7 }} />
+          </View>
+        )}
+      </Pressable>
     </View>
-  );
-}
-
-function Half({ on, icon, title, onPress }: { on: boolean; icon: string; title: string; onPress: () => void }) {
-  const theme = useTheme();
-  const { hovered, hoverProps } = useHover();
-  const ink = on ? theme.rowSelectedText : theme.textSecondary;
-  return (
-    <Pressable {...hoverProps} style={{ flex: 1 }} accessibilityRole="button" accessibilityLabel={`${title} mode`} accessibilityState={{ selected: on }} onPress={onPress}>
-      <View
-        style={{
-          flex: 1,
-          borderRadius: radius.chrome - INSET,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 5,
-          backgroundColor: on ? theme.tabSelected : hovered ? theme.tabHover : undefined,
-        }}
-      >
-        <Symbol name={icon} size={11} weight="semibold" color={ink} style={{ width: 14, height: 14 }} />
-        <Text size="small" weight={on ? "semibold" : "regular"} style={{ color: ink }}>
-          {title}
-        </Text>
-      </View>
-    </Pressable>
   );
 }

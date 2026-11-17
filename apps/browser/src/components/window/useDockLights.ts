@@ -65,6 +65,7 @@ export function useSidebarLights(windowId: string, dock: Animated.Value, slide: 
 export function slidingCenter(o: SidebarLights, dock: number, slide: number) {
   // (fork) a hidden left sidebar leaves the traffic lights where they are, at the toolbar's left, instead of sliding them out
   if (o.peeking && !o.right && !o.fullscreen) return sidebarLightsCenter(false, o.width, 0, 0, o.lights); // (fork) hidden meanwhile, so left in place
+  if (o.right && !o.fullscreen) return sidebarLightsCenter(false, o.width, 0, 0, o.lights); // (fork) a right sidebar leaves the lights at the toolbar's left
   const offset = o.fullscreen ? 0 : o.peeking ? (o.width + 12) * (1 - slide) - o.peekAt.left : o.right ? o.width * (1 - dock) : 0;
   return sidebarLightsCenter(o.right && !o.fullscreen, o.width, offset, o.peeking && !o.fullscreen ? o.peekAt.top : 0, o.lights);
 }

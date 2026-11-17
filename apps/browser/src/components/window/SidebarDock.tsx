@@ -215,7 +215,7 @@ function SidebarDock({
   // content up over it, unless the address bar lives in the sidebar
   const addressInSidebar = useAddressBarInSidebar();
   const headerInUse = addressInSidebar;
-  const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
+  const lift = (peeking || right) && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // (fork) a right sidebar never holds the lights either // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
   const watching = watchesEdge(state, moving);
@@ -337,8 +337,8 @@ function SidebarDock({
               )}
             </Animated.View>
           )}
-          {/* (fork) the sidebar, docked or sliding in, keeps a darker ground of its own now that the window frame is lighter */}
-          <View style={[{ flex: 1, backgroundColor: theme.dark ? SIDEBAR_GROUND.dark : SIDEBAR_GROUND.light }, peeking ? { borderRadius: peekAt.radius, overflow: "hidden" } : null]}>
+          {/* (fork) sliding in over the page, the sidebar has a darker ground of its own; docked, it is the window frame's colour */}
+          <View style={[{ flex: 1, backgroundColor: peeking ? (theme.dark ? SIDEBAR_GROUND.dark : SIDEBAR_GROUND.light) : undefined }, peeking ? { borderRadius: peekAt.radius, overflow: "hidden" } : null]}>
             <View style={{ flex: 1, marginTop: -lift }}>{sidebar}</View>
           </View>
         </Animated.View>

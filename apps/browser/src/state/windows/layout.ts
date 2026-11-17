@@ -43,7 +43,8 @@ export function openingLightsCenter(s: BrowserState, windowId: string): LightsPl
     tabsHidden: s.settings.autoHideTabs,
   });
   const base = s.settings.addressBar === "sidebar" ? ARC_LIGHTS_CENTER : toolbarLightsCenter(s.settings.compactToolbar, frame);
-  return sidebarLightsCenter(sidebarSideOf(s, w.id) === "right", width, open ? 0 : width, 0, base);
+  if (sidebarSideOf(s, w.id) === "right") return sidebarLightsCenter(false, width, 0, 0, base); // (fork) lights stay at the toolbar's left
+  return sidebarLightsCenter(false, width, open ? 0 : width, 0, base);
 }
 
 export function usePageFrameInset(): number {

@@ -101,7 +101,7 @@ export function Toolbar({
   const sidebarLayout = useTabLayout(windowId) === "sidebar";
   const sidebarOnLeft = useSidebarSide(windowId) === "left";
   const fullScreen = useWindowFullScreen(windowId);
-  const lightsInToolbar = sidebarLayout && sidebarOnLeft && !tabsShown && !inSplit && !fullScreen;
+  const lightsInToolbar = sidebarLayout && (!sidebarOnLeft || !tabsShown) && !inSplit && !fullScreen; // (fork) with the sidebar on the right they always sit here
   // One pitch for everything on the right: status icons, back, forward, reload, then (in a split pane) the split
   // and close buttons. Each sits `navStep` from the next, centre to centre, with 4 pt between hover plates.
   const navStep = row.button + 4;
@@ -195,10 +195,13 @@ export function ToolbarBackdrop({ tabId }: { tabId: string }) {
   const palette = useSitePalette(tabId);
   const band = useEasedColor(palette.background);
   const row = useToolbarRow();
+  const agentMode = useBrowser((s) => isAgentProfile(s, s.tabs[tabId] && s.windows[s.tabs[tabId]!.windowId]?.profileId)); // (fork)
   return (
     <View pointerEvents="none" style={{ height: row.height }}>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />
-      {url ? <Divider color={palette.divider} style={BOTTOM_LINE} /> : null}
+      {agentMode ? <HazardStripes color={palette.text} /> : null}
+      {/* (fork) the same full-point hairline as the pane toolbar's */}
+      {url ? <View style={[BOTTOM_LINE, { height: 1, backgroundColor: palette.text, opacity: HAIRLINE_OPACITY }]} /> : null}
     </View>
   );
 }

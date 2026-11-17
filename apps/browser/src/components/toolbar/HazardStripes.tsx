@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-const STRIPE = { width: 14, pitch: 28, opacity: 0.07 } as const;
+const STRIPE = { width: 14, pitch: 28, opacity: 0.1 } as const;
 
 export const HazardStripes = memo(function HazardStripes({ color }: { color: string }) {
   const [size, setSize] = useState({ width: 0, height: 0 });
