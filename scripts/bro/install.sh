@@ -1,12 +1,13 @@
 #!/bin/bash
-# Installs the built app as /Applications/Bro.app: quits Bro, swaps the app, reopens it. Bro's data is not touched.
+# Installs the built app as /Applications/Bro-wser.app: quits it, swaps the app, reopens it. Its data is not touched.
 # Erbin browses in Bro, so ask him before running this unless he just asked for the change.
-# `install.sh claude` installs Bro for Claude (built with `build.sh claude`) as /Applications/Bro for Claude.app.
+# `install.sh claude` installs Bro-claude (built with `build.sh claude`) as /Applications/Bro-claude.app.
+# Copies under an older name (Bro.app, Bro for Claude.app) go to the Trash; the data stays, it is keyed by app id.
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 2
 case "${1:-bro}" in
-  bro) name=Bro; id=is.erbin.ardia; derived=build ;;
-  claude) name="Bro for Claude"; id=is.erbin.ardia.claude; derived=build-claude ;;
+  bro) name=Bro-wser; old=(Bro); id=is.erbin.ardia; derived=build ;;
+  claude) name=Bro-claude; old=("Bro for Claude"); id=is.erbin.ardia.claude; derived=build-claude ;;
   *) echo "usage: install.sh [bro|claude]"; exit 2 ;;
 esac
 dest="/Applications/$name.app"
@@ -16,8 +17,12 @@ codesign -v "$app" || { echo "The built app's signature doesn't verify; not inst
 scripts/bro/check-tweaks.sh || { echo "A tweak is missing; not installing."; exit 1; }
 scripts/bro/cli-patch.sh || echo "Could not patch the ardia command (see scripts/bro/cli-patch.sh); installing Bro anyway."
 osascript -e "tell application id \"$id\" to quit" >/dev/null 2>&1
-for _ in $(seq 1 60); do pgrep -f "$dest/Contents/MacOS/" >/dev/null || break; sleep 0.5; done
-pgrep -f "$dest/Contents/MacOS/" >/dev/null && { echo "$name is still running; not installing."; exit 1; }
+still_running() { pgrep -f "$dest/Contents/MacOS/" >/dev/null && return 0; for o in "${old[@]}"; do pgrep -f "/Applications/$o.app/Contents/MacOS/" >/dev/null && return 0; done; return 1; }
+for _ in $(seq 1 60); do still_running || break; sleep 0.5; done
+still_running && { echo "$name is still running; not installing."; exit 1; }
+for o in "${old[@]}"; do  # the same app under an older name
+  [ -d "/Applications/$o.app" ] && osascript -e "tell application \"Finder\" to delete (POSIX file \"/Applications/$o.app\")" >/dev/null 2>&1
+done
 if [ -d "$dest" ]; then
   osascript -e "tell application \"Finder\" to delete (POSIX file \"$dest\")" >/dev/null 2>&1
 fi

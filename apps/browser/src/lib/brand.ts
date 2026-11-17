@@ -3,8 +3,8 @@
 // written: they name Ardia and its author on purpose.
 const CREDIT = /fork of Ardia|free software|Mantra Patel|General Public License/;
 
-// The app's own name: "Bro", or "Bro for Claude" in the agents' build (platform/app.ts sets it from the bundle).
-let appName = "Bro";
+// The app's own name: "Bro-wser", or "Bro-claude" in the agents' build (platform/app.ts sets it from the bundle).
+let appName = "Bro-wser";
 export function setBrandName(name: string | undefined) {
   if (name && name !== "Ardia") appName = name;
 }

@@ -1,13 +1,13 @@
 #!/bin/bash
 # Builds Bro (Release) from this checkout. Prints the built app's path. Never installs.
-# `build.sh claude` builds Bro for Claude instead: app id is.erbin.ardia.claude, its own name, inverted icon and data.
+# `build.sh claude` builds Bro-claude instead: app id is.erbin.ardia.claude, its own name, inverted icon and data.
 set -uo pipefail
 export LANG=en_US.UTF-8
 cd "$(dirname "$0")/../../apps/browser" || exit 2
 flavor=${1:-bro}
 case "$flavor" in
   bro) derived=build; extra=() ;;
-  claude) derived=build-claude; extra=(PRODUCT_BUNDLE_IDENTIFIER=is.erbin.ardia.claude "BRO_APP_NAME=Bro for Claude" ASSETCATALOG_COMPILER_APPICON_NAME=AppIconClaude) ;;
+  claude) derived=build-claude; extra=(PRODUCT_BUNDLE_IDENTIFIER=is.erbin.ardia.claude BRO_APP_NAME=Bro-claude ASSETCATALOG_COMPILER_APPICON_NAME=AppIconClaude) ;;
   *) echo "usage: build.sh [bro|claude]"; exit 2 ;;
 esac
 log="$(cd ../.. && pwd)/build-release-$flavor.log"

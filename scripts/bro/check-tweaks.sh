@@ -6,7 +6,7 @@ missing=0
 check() { grep -qF -- "$2" "$1" 2>/dev/null || { echo "MISSING in $1: $2"; missing=1; }; }
 
 B=apps/browser
-check $B/macos/Ardia.xcodeproj/project.pbxproj 'BRO_APP_NAME = Bro;'
+check $B/macos/Ardia.xcodeproj/project.pbxproj 'BRO_APP_NAME = "Bro-wser";'
 check $B/macos/Ardia-macOS/AppIcon.icon/icon.json '"image-name": "dots.png"'
 check $B/macos/Ardia.xcodeproj/project.pbxproj 'PRODUCT_BUNDLE_IDENTIFIER = is.erbin.ardia;'
 check $B/macos/Ardia.xcodeproj/project.pbxproj 'DEVELOPMENT_TEAM = B39983B5VG;'

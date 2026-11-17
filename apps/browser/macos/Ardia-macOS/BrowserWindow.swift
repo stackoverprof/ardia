@@ -12,7 +12,7 @@ final class BrowserWindow: NSWindow {
     )
     titlebarAppearsTransparent = true
     titleVisibility = .hidden
-    title = (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "Bro" // (fork) Bro, or Bro for Claude
+    title = (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "Bro-wser" // (fork) Bro-wser, or Bro-claude
     minSize = NSSize(width: 720, height: 460)
     isReleasedWhenClosed = false
     backgroundColor = NSColor(name: nil) { appearance in

@@ -50,16 +50,16 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 
 - A thinner, **lighter** wash over the blurred desktop (white wash in dark mode), so the frame reads as see-through.
 
-## Bro for Claude
+## Bro-claude
 
-- **Two apps from one source.** `build.sh` / `install.sh` make Bro (`is.erbin.ardia`, for Erbin); `build.sh claude` / `install.sh claude` make **Bro for Claude** (`is.erbin.ardia.claude`, where Claude's agents browse), with its own data dir, name (`BRO_APP_NAME`) and an inverted icon (`AppIconClaude.icon`: white dots on a dark tile).
-- **Bro for Claude's frame colour** is its profile's colour or theme, set in the app like any profile's.
+- **Two apps from one source.** `build.sh` / `install.sh` make Bro (`is.erbin.ardia`, for Erbin); `build.sh claude` / `install.sh claude` make **Bro-claude** (`is.erbin.ardia.claude`, where Claude's agents browse), with its own data dir, name (`BRO_APP_NAME`) and an inverted icon (`AppIconClaude.icon`: white dots on a dark tile).
+- **Bro-claude's frame colour** is its profile's colour or theme, set in the app like any profile's.
 - **Stronger toolbar hairline** in both: 1 pt in the page's ink at 12%, instead of a hairline-width divider that vanishes on low-DPI screens.
 - **Docked sidebar has the frame's colour;** only the sliding-in sidebar gets a darker ground.
 - **Reload icon centred on its circle** (lifted 1 pt past the arrowhead) and toolbar buttons on whole points, so nothing sits low on low-DPI screens.
 
 - **Quiet traffic lights wherever they are:** grey dots at rest, the real lights on hover, in the toolbar or in a docked sidebar (`QuietLightDots.tsx`).
-- **Each app says its own name** (menus, window title, About, interface text): the bundle's `CFBundleName`, so Bro for Claude never says Bro or Ardia.
+- **Each app says its own name** (menus, window title, About, interface text): the bundle's `CFBundleName`, so Bro-claude never says Bro or Ardia.
 
 ## The ardia command
 

@@ -37,7 +37,7 @@ export const onOpenURLs = (listener: (urls: string[], pointer?: [number, number]
 
 export const systemInfo = () => App.systemInfo();
 
-// (fork) interface text names the app as its bundle does: Bro, or Bro for Claude
+// (fork) interface text names the app as its bundle does: Bro-wser, or Bro-claude
 try {
   setBrandName(App.systemInfo().appName);
 } catch {}
