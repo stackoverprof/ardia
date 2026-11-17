@@ -3,9 +3,15 @@
 // written: they name Ardia and its author on purpose.
 const CREDIT = /fork of Ardia|free software|Mantra Patel|General Public License/;
 
+// The app's own name: "Bro", or "Bro for Claude" in the agents' build (platform/app.ts sets it from the bundle).
+let appName = "Bro";
+export function setBrandName(name: string | undefined) {
+  if (name && name !== "Ardia") appName = name;
+}
+
 export function brand<T>(text: T): T {
   if (typeof text !== "string" || !text.includes("Ardia") || CREDIT.test(text)) return text;
-  return text.replace(/\bArdia\b/g, "Bro") as T;
+  return text.replace(/\bArdia\b/g, appName) as T;
 }
 
 export function brandDeep<T>(value: T): T {

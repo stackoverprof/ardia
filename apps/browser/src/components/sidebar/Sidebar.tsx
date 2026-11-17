@@ -3,7 +3,9 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { ContextMenuArea, space, WindowDragRegion } from "../ui";
 import { layout } from "../ui/theme";
 import { TintInk } from "../ui/TintInk";
-import { useSettings, useWindowId, useWindowProfileId } from "../../state/browser/hooks";
+import { useSettings, useTabLayout, useTabsShown, useWindowFullScreen, useWindowId, useWindowProfileId } from "../../state/browser/hooks";
+import { QuietLightDots } from "../window/QuietLightDots";
+import { useTheme } from "../ui/theme";
 import { useHasDownloads, useNoTiles } from "../../state/sidebar/hooks";
 import { useAddressBarInSidebar, useToolbarLightsCenter } from "../../state/windows/layout";
 import { DownloadsButton } from "../downloads/DownloadsButton";
@@ -49,6 +51,12 @@ export function Sidebar({ width }: { width: number }) {
   const footer = dots || footerDownloads ? PROFILE_DOTS_HEIGHT : 0;
   const nothingPinned = useNoTiles(windowId, current);
   const rowLook = useSidebarRowLookSource();
+  // (fork) the traffic lights sit in a docked sidebar's top row: quiet there too, coloured on hover
+  const theme = useTheme();
+  const sidebarLayout = useTabLayout(windowId) === "sidebar";
+  const tabsShown = useTabsShown(windowId);
+  const fullScreen = useWindowFullScreen(windowId);
+  const lightsInSidebar = sidebarLayout && tabsShown && !fullScreen;
 
   const drag = useRef<DragController | null>(null);
   const onScrollView = useCallback((v: ScrollView | null) => {
@@ -108,6 +116,7 @@ export function Sidebar({ width }: { width: number }) {
               </SidebarRowLookContext.Provider>
             </View>
 
+            <QuietLightDots windowId={windowId} owner="sidebar" on={lightsInSidebar} color={theme.textPrimary} lightInk={theme.dark} refresh={width} />
             <TintInk>
               {footer ? (
                 <View style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: footer }}>

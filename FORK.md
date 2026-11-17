@@ -58,6 +58,9 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 - **Docked sidebar has the frame's colour;** only the sliding-in sidebar gets a darker ground.
 - **Reload icon centred on its circle** (lifted 1 pt past the arrowhead) and toolbar buttons on whole points, so nothing sits low on low-DPI screens.
 
+- **Quiet traffic lights wherever they are:** grey dots at rest, the real lights on hover, in the toolbar or in a docked sidebar (`QuietLightDots.tsx`).
+- **Each app says its own name** (menus, window title, About, interface text): the bundle's `CFBundleName`, so Bro for Claude never says Bro or Ardia.
+
 ## The ardia command
 
 - **Control pill on the driven tab only.** "Claude Code is controlling Bro" shows only on the tab an `ardia browse` session drives, not on every tab in every profile. The CLI tells Bro which page it drives after each command (`using`, in `browse/state.py` and `control.py`); Bro maps it to a tab (`controlSocket.ts`) and the pill checks it (`CliControlPill.tsx`).

@@ -7,7 +7,7 @@ import { TOOLBAR_ROWS, urlFieldOf, type ToolbarRow } from "../../lib/toolbarRow"
 import { ToolbarRowContext } from "../ui/toolbarRowContext";
 import { activate } from "../../state/tabs/actions";
 import { openPanel as openWindowPanel, toggleSidebar } from "../../state/windows/actions";
-import { setTrafficLightsQuiet, trafficLightsFrames } from "../../platform/windows";
+import { QuietLightDots } from "../window/QuietLightDots";
 import { useIsBookmarked, useSettings, useSidebarSide, useTab, useTabLayout, useTabLive, useTabsShown, useWindowFullScreen } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
 import { Button, ContextMenuArea, Divider, FadeLabel, font, ink, layout, space, Symbol, Text, useHover, WindowDragRegion } from "../ui";
@@ -113,32 +113,9 @@ export function Toolbar({
     const nav = (fromRight: number) => ({ style: { position: "absolute" as const, top, right: right - 4 + fromRight * navStep }, hit });
     return { top, sidebarButton: place(leftStart + row.button / 2), back: nav(2), forward: nav(1), reload: nav(0) };
   }, [row, right, navStep, leftStart]);
-  // (fork) like the Zen mod: at rest the lights are quiet dots in the page's ink, and the real coloured lights come
-  // back on hover. The native side draws the dots at the buttons' own frames and handles the hover.
+  // (fork) quiet traffic lights (QuietLightDots) while they sit in the toolbar
   const lightInk = palette.text.startsWith(ink.white);
-  useEffect(() => {
-    void setTrafficLightsQuiet(windowId, lightsInToolbar, lightInk);
-  }, [windowId, lightsInToolbar, lightInk]);
-  useEffect(() => () => void setTrafficLightsQuiet(windowId, false, false), [windowId]);
-  // The dots themselves are toolbar content, placed on the real lights' frames (asked from the window), so the
-  // sidebar covers them when it slides over instead of them popping in and out.
   const bar = useRef<View>(null);
-  const [dots, setDots] = useState<number[][]>([]);
-  useEffect(() => {
-    if (!lightsInToolbar) return setDots([]);
-    let live = true;
-    const place = () =>
-      void trafficLightsFrames(windowId).then((frames) => {
-        bar.current?.measureInWindow((x, y) => {
-          if (live) setDots(frames.map(([fx = 0, fy = 0, w = 0, h = 0]) => [fx - x, fy - y, Math.min(w, h), w, h]));
-        });
-      });
-    const timers = [60, 400, 1200].map((ms) => setTimeout(place, ms));
-    return () => {
-      live = false;
-      timers.forEach(clearTimeout);
-    };
-  }, [windowId, lightsInToolbar, row]);
   const urlStyle = useMemo(() => ({ position: "absolute" as const, left: urlLeft, right: statusRight, top: urlFieldOf(row).top }), [urlLeft, statusRight, row]);
   if (!tab) return <View style={{ height: row.height }} />;
 
@@ -146,9 +123,7 @@ export function Toolbar({
     <View ref={bar} style={{ height: row.height }}>
       {!bare && <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />}
       <WindowDragRegion style={StyleSheet.absoluteFill} />
-      {dots.map(([x = 0, y = 0, side = 0, w = 0, h = 0], i) => (
-        <View key={i} pointerEvents="none" style={{ position: "absolute", left: x + (w - side) / 2, top: y + (h - side) / 2, width: side, height: side, borderRadius: side / 2, backgroundColor: palette.text, opacity: 0.22 }} />
-      ))}
+      <QuietLightDots windowId={windowId} owner={`toolbar:${tabId}`} on={lightsInToolbar} color={palette.text} lightInk={lightInk} refresh={row} />
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: dim }]} pointerEvents="box-none">
         {geometry.sidebarButton !== null && (
           <Button variant="icon" toolbar

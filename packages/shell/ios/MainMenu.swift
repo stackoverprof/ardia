@@ -562,8 +562,11 @@ enum BroName {
     }
   }
 
+  /// "Bro", or "Bro for Claude" in the agents' build: the bundle's own name.
+  static let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String).flatMap { $0 == "Ardia" ? nil : $0 } ?? "Bro"
+
   static func text(_ title: String) -> String {
-    title.contains("Ardia") ? title.replacingOccurrences(of: "\\bArdia\\b", with: "Bro", options: .regularExpression) : title
+    title.contains("Ardia") ? title.replacingOccurrences(of: "\\bArdia\\b", with: appName, options: .regularExpression) : title
   }
 
   private static func rename(_ menu: NSMenu) {

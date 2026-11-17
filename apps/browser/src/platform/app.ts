@@ -14,6 +14,7 @@ export {
 } from "@ardia/shell";
 import { call } from "@ardia/ardiacore";
 import { nativeModule, type AppEvent, type AppearanceMode, type OpenURLSource, type UpdateChannel } from "@ardia/shell";
+import { setBrandName } from "../lib/brand";
 
 export type { OpenURLSource };
 
@@ -35,6 +36,11 @@ export const onOpenURLs = (listener: (urls: string[], pointer?: [number, number]
   Shell.addListener("onOpenURLs", ({ urls, pointer, source }) => listener(urls, pointer, source));
 
 export const systemInfo = () => App.systemInfo();
+
+// (fork) interface text names the app as its bundle does: Bro, or Bro for Claude
+try {
+  setBrandName(App.systemInfo().appName);
+} catch {}
 export const crashReports = (since: number) => App.crashReports(since);
 export const hardwareInfo = () => App.hardwareInfo();
 export const diagnosticsSample = () => App.diagnosticsSample();

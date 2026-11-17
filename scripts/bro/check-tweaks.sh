@@ -13,12 +13,12 @@ check $B/macos/Ardia.xcodeproj/project.pbxproj 'DEVELOPMENT_TEAM = B39983B5VG;'
 grep -A1 '<key>SUFeedURL</key>' $B/macos/Ardia-macOS/Info.plist | grep -q '<string></string>' || { echo "MISSING: the updater feed must stay empty (Info.plist SUFeedURL)"; missing=1; }
 grep -A1 '<key>SUEnableAutomaticChecks</key>' $B/macos/Ardia-macOS/Info.plist | grep -q '<false/>' || { echo "MISSING: automatic update checks must stay off (Info.plist)"; missing=1; }
 
-check $B/src/lib/brand.ts 'text.replace(/\bArdia\b/g, "Bro")'
+check $B/src/lib/brand.ts 'text.replace(/\bArdia\b/g, appName)'
 check $B/src/components/ui/Text.tsx 'brandDeep(rest.children)'
 check $B/src/components/ui/Button.tsx 'brand(props.tooltip)'
 check $B/src/platform/dialogs.ts 'Dialogs.confirm(brandDeep(options))'
 check packages/shell/ios/MainMenu.swift 'BroName.install()'
-check packages/shell/ios/AppUpdater.swift 'Bro is a personal fork of Ardia'
+check packages/shell/ios/AppUpdater.swift 'is a personal fork of Ardia'
 
 T=$B/src/components/toolbar/Toolbar.tsx
 check $T '(fork) Zen-style toolbar'
@@ -29,8 +29,10 @@ check $T '(fork) no container behind the address'
 check $T '(fork) no address field'
 check $T 'const DOMAIN_REST = 0.5;'
 check $T 'openWindowPanel(windowId, tab.url, undefined, "centred");'
-check $T 'setTrafficLightsQuiet(windowId, lightsInToolbar, lightInk)'
-check $T 'trafficLightsFrames(windowId)'
+check $T '<QuietLightDots'
+check apps/browser/src/components/sidebar/Sidebar.tsx '<QuietLightDots'
+check apps/browser/src/components/window/QuietLightDots.tsx 'trafficLightsFrames(windowId)'
+check apps/browser/src/lib/brand.ts 'export function setBrandName'
 
 check $B/src/state/omnibox/barPlacement.ts 'return "centred"; // (fork)'
 check $B/src/state/commands/commands.ts '(fork) Cmd+L again closes the command bar'
