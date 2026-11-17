@@ -215,7 +215,7 @@ function SidebarDock({
   // content up over it, unless the address bar lives in the sidebar
   const addressInSidebar = useAddressBarInSidebar();
   const headerInUse = addressInSidebar;
-  const lift = (peeking || right) && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // (fork) a right sidebar never holds the lights either // tiles end up as far from the top as from the sides
+  const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
   const watching = watchesEdge(state, moving);

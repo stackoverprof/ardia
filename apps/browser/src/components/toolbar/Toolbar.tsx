@@ -21,8 +21,6 @@ import { copyPageUrl } from "../../state/site/selection";
 import { closePane, openSplitPane, showSplitMenu } from "../../state/splits/actions";
 import { useEasedColor, type ToolbarPalette } from "../ui/toolbarColors";
 import { useSitePalette } from "./useSitePalette";
-import { HazardStripes } from "./HazardStripes";
-import { isClaudeApp } from "../../state/app/claudeApp";
 import { setToolbarExtensionsWidth } from "../../state/windows/layout";
 import { SIDEBAR_FIELD } from "../sidebar/geometry";
 import { FieldSiteButton, SidebarFieldFill } from "../sidebar/SidebarField";
@@ -80,7 +78,6 @@ export function Toolbar({
   const isLoading = useTabLive(tabId, (l) => l.isLoading);
   const palette = useSitePalette(tabId);
   const band = useEasedColor(bare ? null : palette.background);
-  const agentMode = isClaudeApp(); // (fork) Bro for Claude: caution-tape stripes
   const history = useHistoryAvailability(tabId);
   const row = useToolbarRow();
   const extensionsWidth = useToolbarExtensionsWidth(windowId, Infinity);
@@ -100,7 +97,7 @@ export function Toolbar({
   const sidebarLayout = useTabLayout(windowId) === "sidebar";
   const sidebarOnLeft = useSidebarSide(windowId) === "left";
   const fullScreen = useWindowFullScreen(windowId);
-  const lightsInToolbar = sidebarLayout && (!sidebarOnLeft || !tabsShown) && !inSplit && !fullScreen; // (fork) with the sidebar on the right they always sit here
+  const lightsInToolbar = sidebarLayout && sidebarOnLeft && !tabsShown && !inSplit && !fullScreen;
   // One pitch for everything on the right: status icons, back, forward, reload, then (in a split pane) the split
   // and close buttons. Each sits `navStep` from the next, centre to centre, with 4 pt between hover plates.
   const navStep = row.button + 4;
@@ -110,7 +107,7 @@ export function Toolbar({
   const leftStart = lightsInToolbar ? layout.trafficLightsWidth : 8;
   const urlLeft = geometry.sidebarButton !== null ? leftStart + row.button + 4 : leftStart;
   const at = useMemo(() => {
-    const top = row.center - row.button / 2;
+    const top = Math.round(row.center - row.button / 2); // (fork) whole points, so buttons don't blur or drop a pixel on low-DPI screens
     const place = (center: number | null) => ({ position: "absolute" as const, top, left: (center ?? 0) - row.button / 2 });
     const hit = { width: row.button, height: row.button, plateX: 0, plateY: 0, box: row.button, radius: row.buttonRadius };
     const nav = (fromRight: number) => ({ style: { position: "absolute" as const, top, right: right - 4 + fromRight * navStep }, hit });
@@ -148,7 +145,6 @@ export function Toolbar({
   return (
     <View ref={bar} style={{ height: row.height }}>
       {!bare && <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />}
-      {!bare && agentMode ? <HazardStripes color={palette.text} /> : null}
       <WindowDragRegion style={StyleSheet.absoluteFill} />
       {dots.map(([x = 0, y = 0, side = 0, w = 0, h = 0], i) => (
         <View key={i} pointerEvents="none" style={{ position: "absolute", left: x + (w - side) / 2, top: y + (h - side) / 2, width: side, height: side, borderRadius: side / 2, backgroundColor: palette.text, opacity: 0.22 }} />
@@ -167,7 +163,7 @@ export function Toolbar({
         <HistoryButton place={at.back} tabId={tab.id} windowId={tab.windowId} direction={-1} disabled={!history.back} palette={palette} onFocus={focus} />
         <HistoryButton place={at.forward} tabId={tab.id} windowId={tab.windowId} direction={1} disabled={!history.forward} palette={palette} onFocus={focus} />
         <ReloadButton place={at.reload} tab={tab} loading={isLoading} palette={palette} onFocus={focus} />
-        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? edge + 2 * navStep : edge} />
+        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={Math.round(row.center - row.extensionButton / 2)} right={inSplit ? edge + 2 * navStep : edge} />
         {tab.url ? (
           <ToolbarUrlField tab={tab} palette={palette} windowId={windowId} inSplit={inSplit} onFocus={focus} style={urlStyle} />
         ) : null}
@@ -194,11 +190,9 @@ export function ToolbarBackdrop({ tabId }: { tabId: string }) {
   const palette = useSitePalette(tabId);
   const band = useEasedColor(palette.background);
   const row = useToolbarRow();
-  const agentMode = isClaudeApp(); // (fork)
   return (
     <View pointerEvents="none" style={{ height: row.height }}>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />
-      {agentMode ? <HazardStripes color={palette.text} /> : null}
       {/* (fork) the same full-point hairline as the pane toolbar's */}
       {url ? <View style={[BOTTOM_LINE, { height: 1, backgroundColor: palette.text, opacity: HAIRLINE_OPACITY }]} /> : null}
     </View>

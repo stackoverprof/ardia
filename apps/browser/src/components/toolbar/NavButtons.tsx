@@ -20,8 +20,12 @@ const ICON_LAYER = { ...ICON_CENTER, position: "absolute" as const };
 
 const ReloadGlyphColor = createContext("");
 
+// (fork) the arrowhead sits above the circle, so the circle hangs below the glyph's centre: lift it so the circle is
+// what's centred (and what the reload spin turns around)
+const CIRCLE_LIFT = { transform: [{ translateY: -1 }] };
+
 function ReloadSymbol({ name }: { name: "arrow.clockwise" | "xmark" }) {
-  return <Symbol name={name} size={GLYPH} weight="regular" color={useContext(ReloadGlyphColor)} style={ICON_CENTER} />;
+  return <Symbol name={name} size={GLYPH} weight="regular" color={useContext(ReloadGlyphColor)} style={name === "arrow.clockwise" ? [ICON_CENTER, CIRCLE_LIFT] : ICON_CENTER} />;
 }
 
 const ReloadGlyph = memo(function ReloadGlyph({ loading, color, press }: { loading: boolean; color: string; press: Animated.Value }) {
