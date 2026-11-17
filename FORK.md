@@ -50,13 +50,12 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 
 - A thinner, **lighter** wash over the blurred desktop (white wash in dark mode), so the frame reads as see-through.
 
-## Agent mode
+## Bro for Claude
 
-- **Human / Agent switch** at the very bottom of the sidebar. Agent mode is the agents' profile (the one named Claude, or `agentProfileId`); Human mode goes back to the last human profile (`state/profiles/agentMode.ts`, `components/profiles/AgentModeSwitch.tsx`).
-- **Each mode keeps its own sidebar side and auto-hide** (`agentSidebarSide`, `agentAutoHideTabs`, `human…`), swapped into the live settings when a window crosses modes (`switchProfile` in `state/windows/windows.ts`). Agent mode starts with the sidebar on the right, not auto-hiding. These settings are left out of the config file, so an agent can't change them.
-- **Caution-tape stripes on the toolbar** in Agent mode, the page's ink at 10% over the site's tint, on both toolbar layouts (`HazardStripes.tsx`, `ToolbarBackdrop`).
+- **Two apps from one source.** `build.sh` / `install.sh` make Bro (`is.erbin.ardia`, for Erbin); `build.sh claude` / `install.sh claude` make **Bro for Claude** (`is.erbin.ardia.claude`, where Claude's agents browse), with its own data dir, name (`BRO_APP_NAME`) and an inverted icon (`AppIconClaude.icon`: white dots on a dark tile).
+- **Bro for Claude marks itself:** caution-tape stripes on the toolbar (the page's ink at 10% over the site's tint, stripe and gap 18 pt, `HazardStripes.tsx`, shown when `isClaudeApp()`), and a Claude-orange window frame (`WindowTreatmentView.swift`).
+- **Stronger toolbar hairline** in both: 1 pt in the page's ink at 12%, instead of a hairline-width divider that vanishes on low-DPI screens.
 - **Docked sidebar has the frame's colour;** only the sliding-in sidebar gets a darker ground. A right sidebar leaves the traffic lights at the toolbar's left.
-- **Stronger toolbar hairline:** 1 pt in the page's ink at 12%, instead of a hairline-width divider that vanishes on low-DPI screens.
 
 ## The ardia command
 

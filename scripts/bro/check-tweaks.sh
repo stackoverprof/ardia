@@ -6,7 +6,7 @@ missing=0
 check() { grep -qF -- "$2" "$1" 2>/dev/null || { echo "MISSING in $1: $2"; missing=1; }; }
 
 B=apps/browser
-check $B/macos/Ardia-macOS/Info.plist '<string>Bro</string>'
+check $B/macos/Ardia.xcodeproj/project.pbxproj 'BRO_APP_NAME = Bro;'
 check $B/macos/Ardia-macOS/AppIcon.icon/icon.json '"image-name": "dots.png"'
 check $B/macos/Ardia.xcodeproj/project.pbxproj 'PRODUCT_BUNDLE_IDENTIFIER = is.erbin.ardia;'
 check $B/macos/Ardia.xcodeproj/project.pbxproj 'DEVELOPMENT_TEAM = B39983B5VG;'
@@ -48,9 +48,10 @@ check $B/src/components/toolbar/Toolbar.tsx '<LoadingPill key={tab.id}'
 check $B/src/components/window/CliControlPill.tsx 'Object.values(s.tabs).includes(tabId)'
 check apps/cli/ardia_cli/browse/state.py 'async def announce_target'
 check apps/cli/ardia_cli/browse/tabs.py 'async def wake_app_tab'
-check apps/browser/src/state/windows/windows.ts 'modeSwap(s, w.profileId, profileId)'
-check apps/browser/src/components/sidebar/Sidebar.tsx '<AgentModeSwitch'
 check apps/browser/src/components/toolbar/Toolbar.tsx '<HazardStripes'
+check apps/browser/src/state/app/claudeApp.ts 'endsWith(".claude")'
+check packages/shaders/ios/WindowTreatmentView.swift 'claudeOrange'
+check apps/browser/macos/Ardia-macOS/Info.plist '$(BRO_APP_NAME)'
 check apps/browser/src/components/toolbar/Toolbar.tsx 'HAIRLINE_OPACITY = 0.12'
 
 check packages/shell/ios/WindowManager.swift 'final class QuietLights'

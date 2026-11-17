@@ -1,32 +1,39 @@
 #!/bin/bash
 # Installs the built app as /Applications/Bro.app: quits Bro, swaps the app, reopens it. Bro's data is not touched.
 # Erbin browses in Bro, so ask him before running this unless he just asked for the change.
+# `install.sh claude` installs Bro for Claude (built with `build.sh claude`) as /Applications/Bro for Claude.app.
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 2
-app="$PWD/apps/browser/build/Build/Products/Release/Ardia.app"
-[ -d "$app" ] || { echo "No build yet: run scripts/bro/build.sh"; exit 1; }
+case "${1:-bro}" in
+  bro) name=Bro; id=is.erbin.ardia; derived=build ;;
+  claude) name="Bro for Claude"; id=is.erbin.ardia.claude; derived=build-claude ;;
+  *) echo "usage: install.sh [bro|claude]"; exit 2 ;;
+esac
+dest="/Applications/$name.app"
+app="$PWD/apps/browser/$derived/Build/Products/Release/Ardia.app"
+[ -d "$app" ] || { echo "No build yet: run scripts/bro/build.sh ${1:-bro}"; exit 1; }
 codesign -v "$app" || { echo "The built app's signature doesn't verify; not installing."; exit 1; }
 scripts/bro/check-tweaks.sh || { echo "A tweak is missing; not installing."; exit 1; }
 scripts/bro/cli-patch.sh || echo "Could not patch the ardia command (see scripts/bro/cli-patch.sh); installing Bro anyway."
-osascript -e 'tell application id "is.erbin.ardia" to quit' >/dev/null 2>&1
-for _ in $(seq 1 60); do pgrep -f "/Applications/Bro.app/Contents/MacOS/" >/dev/null || break; sleep 0.5; done
-pgrep -f "/Applications/Bro.app/Contents/MacOS/" >/dev/null && { echo "Bro is still running; not installing."; exit 1; }
-if [ -d /Applications/Bro.app ]; then
-  osascript -e 'tell application "Finder" to delete (POSIX file "/Applications/Bro.app")' >/dev/null 2>&1
+osascript -e "tell application id \"$id\" to quit" >/dev/null 2>&1
+for _ in $(seq 1 60); do pgrep -f "$dest/Contents/MacOS/" >/dev/null || break; sleep 0.5; done
+pgrep -f "$dest/Contents/MacOS/" >/dev/null && { echo "$name is still running; not installing."; exit 1; }
+if [ -d "$dest" ]; then
+  osascript -e "tell application \"Finder\" to delete (POSIX file \"$dest\")" >/dev/null 2>&1
 fi
-[ -e /Applications/Bro.app ] && { echo "Couldn't move the old Bro.app to the Trash; not installing."; exit 1; }
-ditto "$app" /Applications/Bro.app && codesign -v /Applications/Bro.app || { echo "Install failed."; exit 1; }
+[ -e "$dest" ] && { echo "Couldn't move the old $name.app to the Trash; not installing."; exit 1; }
+ditto "$app" "$dest" && codesign -v "$dest" || { echo "Install failed."; exit 1; }
 # The build product has the same app id as the installed Bro; left registered, macOS can show its icon (an older
 # one, from the icon cache) for Bro in the Dock. Unregister it and register only the installed app.
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 $lsregister -u "$app" >/dev/null 2>&1
 # Old copies moved to the Trash by earlier installs stay registered too; the Dock can show any of their icons.
-$lsregister -dump 2>/dev/null | awk '/^path:/{sub(/^path: */,""); sub(/ \(0x[0-9a-f]+\)$/,""); p=$0} /identifier:.*is\.erbin\.ardia$/{print p}' \
+$lsregister -dump 2>/dev/null | awk -v id="$id" '/^path:/{sub(/^path: */,""); sub(/ \(0x[0-9a-f]+\)$/,""); p=$0} $0 ~ "identifier:.*" id "$"{print p}' \
   | grep -F "/.Trash/" | while IFS= read -r old; do $lsregister -u "$old" >/dev/null 2>&1; done
 # ditto keeps the build folder's old date, and macOS keys its icon cache on it: bump it so a new icon shows.
-touch /Applications/Bro.app /Applications/Bro.app/Contents /Applications/Bro.app/Contents/Info.plist
-$lsregister -f /Applications/Bro.app
+touch "$dest" "$dest/Contents" "$dest/Contents/Info.plist"
+$lsregister -f "$dest"
 rm -f "$(getconf DARWIN_USER_CACHE_DIR)com.apple.dock.iconcache"
 killall Dock 2>/dev/null || true
-open -a /Applications/Bro.app
-echo "Installed and reopened Bro ($(git log --oneline -1 | cut -c1-60))."
+env -u ARDIA_DATA_DIR open -a "$dest"  # a shell's ARDIA_DATA_DIR would point the app at the other app's data
+echo "Installed and reopened $name ($(git log --oneline -1 | cut -c1-60))."

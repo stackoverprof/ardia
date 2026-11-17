@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-const STRIPE = { width: 14, pitch: 28, opacity: 0.1 } as const;
+const STRIPE = { width: 18, pitch: 36, opacity: 0.1 } as const; // stripe and gap the same width
 
 export const HazardStripes = memo(function HazardStripes({ color }: { color: string }) {
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -26,7 +26,7 @@ export const HazardStripes = memo(function HazardStripes({ color }: { color: str
             height: height * 3,
             backgroundColor: color,
             opacity: STRIPE.opacity,
-            transform: [{ rotate: "45deg" }],
+            transform: [{ rotate: "-45deg" }],
           }}
         />
       ))}

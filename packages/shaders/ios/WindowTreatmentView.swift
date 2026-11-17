@@ -99,8 +99,13 @@ final class WindowTreatmentView: NSView {
     // in dark mode the wash is now white, lifting the dark blur material instead of deepening it
     let base = dark ? NSColor(white: 1, alpha: 0.18) : NSColor(white: 1, alpha: 0.15)
     baseTint.backgroundColor = (custom.map { dark ? NSColor(white: 1, alpha: 0.18) : NSColor.white.withAlphaComponent($0.baseAlpha * 0.3) } ?? base).cgColor
+    // (fork) Bro for Claude (an app id ending in .claude) wears a Claude-orange frame, so it's never taken for Bro
+    if Self.isClaudeApp { baseTint.backgroundColor = Self.claudeOrange.withAlphaComponent(dark ? 0.32 : 0.28).cgColor }
     blur.alphaValue = 0.7
   }
+
+  private static let isClaudeApp = Bundle.main.bundleIdentifier?.hasSuffix(".claude") ?? false
+  private static let claudeOrange = NSColor(srgbRed: 0xD9 / 255, green: 0x77 / 255, blue: 0x57 / 255, alpha: 1)
 
   private func updateGrain() {
     guard let custom else { return grain.opacity = 0 }

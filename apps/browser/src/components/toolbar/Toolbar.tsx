@@ -22,8 +22,7 @@ import { closePane, openSplitPane, showSplitMenu } from "../../state/splits/acti
 import { useEasedColor, type ToolbarPalette } from "../ui/toolbarColors";
 import { useSitePalette } from "./useSitePalette";
 import { HazardStripes } from "./HazardStripes";
-import { useBrowser } from "../../state/browser/store";
-import { isAgentProfile } from "../../state/profiles/agentMode";
+import { isClaudeApp } from "../../state/app/claudeApp";
 import { setToolbarExtensionsWidth } from "../../state/windows/layout";
 import { SIDEBAR_FIELD } from "../sidebar/geometry";
 import { FieldSiteButton, SidebarFieldFill } from "../sidebar/SidebarField";
@@ -81,7 +80,7 @@ export function Toolbar({
   const isLoading = useTabLive(tabId, (l) => l.isLoading);
   const palette = useSitePalette(tabId);
   const band = useEasedColor(bare ? null : palette.background);
-  const agentMode = useBrowser((s) => isAgentProfile(s, s.windows[windowId]?.profileId)); // (fork) Agent mode stripes
+  const agentMode = isClaudeApp(); // (fork) Bro for Claude: caution-tape stripes
   const history = useHistoryAvailability(tabId);
   const row = useToolbarRow();
   const extensionsWidth = useToolbarExtensionsWidth(windowId, Infinity);
@@ -195,7 +194,7 @@ export function ToolbarBackdrop({ tabId }: { tabId: string }) {
   const palette = useSitePalette(tabId);
   const band = useEasedColor(palette.background);
   const row = useToolbarRow();
-  const agentMode = useBrowser((s) => isAgentProfile(s, s.tabs[tabId] && s.windows[s.tabs[tabId]!.windowId]?.profileId)); // (fork)
+  const agentMode = isClaudeApp(); // (fork)
   return (
     <View pointerEvents="none" style={{ height: row.height }}>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />
