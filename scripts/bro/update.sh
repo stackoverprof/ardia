@@ -1,5 +1,5 @@
 #!/bin/bash
-# Brings the newest stable Ardia release into Bro (branch erbin) without losing Bro's tweaks.
+# Brings the newest stable Ardia release into Bro (branch bro-wser) without losing Bro's tweaks.
 #   scripts/bro/update.sh           merge, check the tweaks, install dependencies, typecheck, build
 #   scripts/bro/update.sh --check   only say whether a newer Ardia release exists
 # It never installs (scripts/bro/install.sh does, after Erbin says yes) and never resolves a conflict by itself.
@@ -9,7 +9,7 @@ set -uo pipefail
 export LANG=en_US.UTF-8
 cd "$(dirname "$0")/../.." || exit 2
 
-[ "$(git rev-parse --abbrev-ref HEAD)" = erbin ] || { echo "Not on branch erbin."; exit 2; }
+[ "$(git rev-parse --abbrev-ref HEAD)" = bro-wser ] || { echo "Not on branch bro-wser."; exit 2; }
 git fetch -q upstream --tags || { echo "Couldn't fetch upstream."; exit 1; }
 latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
 [ -n "$latest" ] || { echo "No stable Ardia release tag found."; exit 1; }
@@ -20,7 +20,7 @@ echo "Ardia $latest is newer than what Bro includes."
 [ "${1:-}" = --check ] && exit 3
 
 [ -z "$(git status --porcelain)" ] || { echo "The working tree has uncommitted changes; commit or stash them first."; exit 2; }
-backup="backup/erbin-before-$latest"
+backup="backup/bro-wser-before-$latest"
 git branch -f "$backup" HEAD
 echo "Saved the current Bro as branch $backup."
 
