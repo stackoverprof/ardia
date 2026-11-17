@@ -4,6 +4,7 @@ import { Button, concentric, type IconPalette } from "../ui";
 import { useTheme } from "../ui/theme";
 import { GlassFill, useGlass } from "../ui/Glass";
 import { SIDEBAR_FIELD } from "./geometry";
+import { CLAUDE_ORANGE, CLAUDE_ORANGE_HOVER, isClaudeApp } from "../../state/app/claudeApp";
 import { useSidebarTokens } from "./tokens";
 
 const FIELD_BORDER = StyleSheet.hairlineWidth;
@@ -20,7 +21,12 @@ export const SidebarFieldFill = memo(function SidebarFieldFill({
   hovered: boolean;
 }) {
   const theme = useTheme();
-  if (useGlass()) {
+  const glass = useGlass();
+  // (fork) Bro-claude's address bar is Claude orange, so its window is never taken for Bro-wser
+  if (isClaudeApp()) {
+    return <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: SIDEBAR_FIELD.radius, backgroundColor: hovered ? CLAUDE_ORANGE_HOVER : CLAUDE_ORANGE }]} />;
+  }
+  if (glass) {
     return (
       <GlassFill state={hovered ? "lit" : "rest"} radius={SIDEBAR_FIELD.radius} />
     );

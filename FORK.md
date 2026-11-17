@@ -53,7 +53,7 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 ## Bro-claude
 
 - **Two apps from one source.** `build.sh` / `install.sh` make Bro (`is.erbin.ardia`, for Erbin); `build.sh claude` / `install.sh claude` make **Bro-claude** (`is.erbin.ardia.claude`, where Claude's agents browse), with its own data dir, name (`BRO_APP_NAME`) and an inverted icon (`AppIconClaude.icon`: white dots on a dark tile).
-- **Bro-claude's frame colour** is its profile's colour or theme, set in the app like any profile's.
+- **Bro-claude's frame colour** is its profile's colour or theme, set in the app like any profile's. Its sidebar address bar is always Claude orange (#D97757, `state/app/claudeApp.ts`).
 - **Stronger toolbar hairline** in both: 1 pt in the page's ink at 12%, instead of a hairline-width divider that vanishes on low-DPI screens.
 - **Docked sidebar has the frame's colour;** only the sliding-in sidebar gets a darker ground.
 - **Reload icon centred on its circle** (lifted 1 pt past the arrowhead) and toolbar buttons on whole points, so nothing sits low on low-DPI screens.

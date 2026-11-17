@@ -15,6 +15,7 @@ import { TOOLBAR_ROWS } from "../../lib/toolbarRow";
 import { setUrlAnchor } from "../../state/windows/layout";
 import { SIDEBAR_FIELD } from "./geometry";
 import { SidebarFieldFill } from "./SidebarField";
+import { CLAUDE_ORANGE, isClaudeApp } from "../../state/app/claudeApp";
 import { SidebarUrlField, useToolbarTab } from "../toolbar/Toolbar";
 import { HistoryButton, ReloadButton } from "../toolbar/NavButtons";
 import { GLYPH } from "../toolbar/tokens";
@@ -30,7 +31,7 @@ const PLATE_RADIUS = radius.toolbar;
 export function SidebarHeaderTools({ width }: { width: number }) {
   const windowId = useWindowId();
   const tab = useToolbarTab(useActiveTabId());
-  const palette = toolbarPalette(useTheme(), null);
+  const palette = toolbarPalette(useTheme(), isClaudeApp() ? CLAUDE_ORANGE : null); // (fork) ink that reads on the orange field
   const toggle = useSettings((st) => st.showSidebarButton !== false);
   const right = useSidebarSide(windowId) === "right";
   const sidebarHint = useShortcutHint("toggleSidebar");
@@ -158,7 +159,7 @@ function EmptyField({ windowId }: { windowId: string }) {
       <Pressable onPress={open}>
         <View style={{ height: SIDEBAR_FIELD.height, justifyContent: "center", paddingLeft: space.l }}>
           <SidebarFieldFill hovered={hovered} />
-          <FadeLabel text="Search or enter address" fontSize={font.body.fontSize} color={theme.placeholder} fadeWidth={14} style={{ height: 18, marginLeft: -space.xxs }} />
+          <FadeLabel text="Search or enter address" fontSize={font.body.fontSize} color={isClaudeApp() ? toolbarPalette(theme, CLAUDE_ORANGE).secondary : theme.placeholder} fadeWidth={14} style={{ height: 18, marginLeft: -space.xxs }} />
         </View>
       </Pressable>
     </View>

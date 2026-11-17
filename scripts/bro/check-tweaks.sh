@@ -33,6 +33,7 @@ check $T '<QuietLightDots'
 check apps/browser/src/components/sidebar/Sidebar.tsx '<QuietLightDots'
 check apps/browser/src/components/window/QuietLightDots.tsx 'trafficLightsFrames(windowId)'
 check apps/browser/src/lib/brand.ts 'export function setBrandName'
+check apps/browser/src/components/sidebar/SidebarField.tsx 'CLAUDE_ORANGE_HOVER : CLAUDE_ORANGE'
 
 check $B/src/state/omnibox/barPlacement.ts 'return "centred"; // (fork)'
 check $B/src/state/commands/commands.ts '(fork) Cmd+L again closes the command bar'
