@@ -37,7 +37,7 @@ test("tabs opened from a collapsed group stay under its header after focus moves
   S().activate("t3");
   S().activate("t5");
   S().activate("t0");
-  assert.equal(height(), bare + 2 * height("t:t0") + rowGap() + GROUP_MEMBERS_PAD_BOTTOM);
+  assert.equal(height(), bare + 2 * entryHeight(S(), "w", "default", "t:t0", true) + rowGap() + GROUP_MEMBERS_PAD_BOTTOM);
   assert.deepEqual(kept(), ["t:t3", "t:t5"]);
   assert.equal(S().groups.g.collapsed, true);
 });
@@ -195,8 +195,8 @@ test("each tab kept under a collapsed header has its own row position, one row g
   const row = height("t:t0");
   const first = rowSpan(S(), "w", "default", "t3", false);
   const second = rowSpan(S(), "w", "default", "t5", false);
-  assert.equal(first.top, 2 * (row + rowGap()) + 3.5 + row);
-  assert.equal(second.top, first.top + row + rowGap());
+  assert.equal(first.top, 2 * (row + rowGap()) + 3.5 + 28); // (fork) group rows are 28
+  assert.equal(second.top, first.top + 28 + rowGap());
   assert.equal(rowSpan(S(), "w", "default", "t4", false).top, 2 * (row + rowGap()) + 3.5);
 });
 

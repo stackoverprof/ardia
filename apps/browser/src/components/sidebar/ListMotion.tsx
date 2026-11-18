@@ -364,7 +364,7 @@ export function useListMotion(windowId: string, profileId: string, entries: stri
 }
 
 export function useGroupMotion(windowId: string, profileId: string, groupId: string, entries: string[], from: Capture, scope: ListMotionScope, enabled: boolean) {
-  const height: Height = (s, e) => entryHeight(s, windowId, profileId, e);
+  const height: Height = (s, e) => entryHeight(s, windowId, profileId, e, true); // (fork) members use group row height
   const planner: Planner = (before, after, slides, ghosts, t) => {
     const was = before.state.groups[groupId];
     const now = after.state.groups[groupId];

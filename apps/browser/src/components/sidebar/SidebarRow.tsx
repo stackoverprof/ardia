@@ -3,6 +3,7 @@ import { View, type StyleProp, type ViewStyle } from "react-native";
 import { FadeLabel, font, radius, Surface, type SurfaceProps } from "../ui";
 import { hex, layout, useTheme } from "../ui/theme";
 import { useSelectedTabGlow } from "./rowLook";
+import { useRowHeight } from "./rowHeight";
 import { SELECTED_ROW_SHADOW_OFFSET, SIDEBAR_TYPE, TAB_ROW } from "./tokens";
 
 export const ROW_TITLE_FRAME = { flex: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap } as const;
@@ -30,6 +31,7 @@ export function SidebarRowSurface({
 }) {
   const theme = useTheme();
   const glow = useSelectedTabGlow();
+  const height = useRowHeight(); // (fork) shorter inside a group box
   return (
     <Surface
       fill={hex(fill)}
@@ -41,7 +43,7 @@ export function SidebarRowSurface({
       shadowOpacity={selected ? glow.shadowOpacity : 0}
       shadowRadius={glow.shadowRadius}
       shadowOffset={SELECTED_ROW_SHADOW_OFFSET}
-      style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", paddingLeft: padLeft, paddingRight: padRight }}
+      style={{ height, flexDirection: "row", alignItems: "center", paddingLeft: padLeft, paddingRight: padRight }}
     >
       {children}
     </Surface>

@@ -12,6 +12,7 @@ import { ActivitySpinner, Button, Divider, FadeLabel, font, ink, OutsidePressAre
 import { isPinnedRow, tabTitle } from "../../state/browser/model";
 import { awayFromPin, awayTitle } from "../../state/pins/organize";
 import { commitRename, endRename, startRename } from "../../state/sidebar/actions";
+import { useRowHeight } from "./rowHeight";
 import { useDragItem, useDropOnto } from "./DragProvider";
 import { useShift, type EntryMotion } from "./EntryMotion";
 import { useRowHover } from "./hoverController";
@@ -272,6 +273,7 @@ function SplitPane({ tabId, windowId }: { tabId: string; windowId: string }) {
   const active = useIsActiveTab(tabId);
   const { hovered, hoverProps } = useRowHover(windowId, { kind: "tab", id: tabId });
   const closeControl = useTabCloseControlWhile(tabId, hovered);
+  const rowHeight = useRowHeight(); // (fork)
   if (!tab) return null;
   return (
     <View {...hoverProps} style={{ flex: 1, minWidth: 0 }}>
@@ -279,7 +281,7 @@ function SplitPane({ tabId, windowId }: { tabId: string; windowId: string }) {
         {({ pressed }) => (
           <View
             style={{
-              height: layout.rowHeight - 6,
+              height: rowHeight - 6,
               borderRadius: radius.tile,
               flexDirection: "row",
               alignItems: "center",

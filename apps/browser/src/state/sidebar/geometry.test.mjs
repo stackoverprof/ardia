@@ -80,15 +80,15 @@ test("a nested group first in its parent sits a row gap below the parent's heade
     const s = S();
     const members = groupEntries(s, "g");
     assert.equal(members[0], gap ? "g:n" : "t:t2");
-    assert.equal(entryHeight(s, "w", "default", "g:g"), 7 + 34 + gap + entriesHeight(s, "w", "default", members) + PAD);
-    assert.equal(rowSpan(s, "w", "default", "t4", false).top, 2 * 37 + 3.5 + 34 + gap + (gap ? entryHeight(s, "w", "default", "g:n") + 3 : 2 * 37));
+    assert.equal(entryHeight(s, "w", "default", "g:g"), 7 + 28 + gap + entriesHeight(s, "w", "default", members, true) + PAD);
+    assert.equal(rowSpan(s, "w", "default", "t4", false).top, 2 * 37 + 3.5 + 28 + gap + (gap ? entryHeight(s, "w", "default", "g:n", true) + 3 : 2 * 31));
   }
 });
 
 test("a collapsed group keeps its active nested group a row gap below its header", () => {
   hydrate({ collapsed: true, nested: ["t2", "t3"], active: "t3" });
   const s = S();
-  assert.equal(entryHeight(s, "w", "default", "g:n"), 7 + 34 + 34 + PAD);
-  assert.equal(entryHeight(s, "w", "default", "g:g"), 7 + 34 + 3 + entryHeight(s, "w", "default", "g:n") + PAD);
-  assert.equal(rowSpan(s, "w", "default", "t3", false).top, 2 * 37 + 3.5 + 34 + 3 + 3.5 + 34);
+  assert.equal(entryHeight(s, "w", "default", "g:n"), 7 + 28 + 28 + PAD);
+  assert.equal(entryHeight(s, "w", "default", "g:g"), 7 + 28 + 3 + entryHeight(s, "w", "default", "g:n") + PAD);
+  assert.equal(rowSpan(s, "w", "default", "t3", false).top, 2 * 37 + 3.5 + 28 + 3 + 3.5 + 28);
 });

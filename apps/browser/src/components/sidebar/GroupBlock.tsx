@@ -31,6 +31,7 @@ import { SidebarRowSurface } from "./SidebarRow";
 import { curve } from "../ui/motion";
 import { entryKey, parseEntry } from "../../state/sidebar/entryKey";
 import { LiveFolderBlock } from "./LiveFolderBlock";
+import { GROUP_ROW_HEIGHT, RowHeight } from "./rowHeight";
 import { tailKey, type RowSection } from "./dragModel";
 import { SharedFolderMark } from "./SharedFolderMark";
 
@@ -109,6 +110,7 @@ export const GroupBlock = memo(function GroupBlock({
 
   return (
     <Animated.View ref={wrapper.ref} style={wrapper.style}>
+      <RowHeight.Provider value={GROUP_ROW_HEIGHT}>
       <View {...moved} {...box.hoverProps} ref={movedRef} style={[{ paddingVertical: GROUP_BORDER + GROUP_GAP }, moved.style as object]}>
         <Animated.View
           pointerEvents="none"
@@ -132,7 +134,7 @@ export const GroupBlock = memo(function GroupBlock({
                   },
             )}
             keep={keptEntries}
-            rowHeight={(key) => entryHeightNow(windowId, profileId, key)}
+            rowHeight={(key) => entryHeightNow(windowId, profileId, key, true)}
             padTop={headGap(collapsed && keptEntries.length ? keptEntries[0] : entries[0])}
             padBottom={groupMembersPadBottom(collapsed ? keptEntries.length : entries.length)}
             indent={GROUP_INDENT}
@@ -143,6 +145,7 @@ export const GroupBlock = memo(function GroupBlock({
         </InnerGroupHover.Provider>
         {motion.tail ? <Animated.View style={{ marginTop: motion.tail }} /> : null}
       </View>
+      </RowHeight.Provider>
     </Animated.View>
   );
 });
@@ -225,6 +228,7 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
                     <FadeLabel text={label} fontSize={font.body.fontSize} weight="medium" color={tokens.groupTitle} style={{ position: "absolute", left: 0, right: 0, top: 0, height: TAB_ROW.titleHeight }} />
                   </View>
                   <SharedFolderMark groupId={groupId} />
+                  <View style={{ flex: 1 }} />{/* (fork) chevron sits at the right edge */}
                   <Animated.View
                     style={{
                       width: 10,

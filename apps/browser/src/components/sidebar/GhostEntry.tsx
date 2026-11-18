@@ -11,6 +11,7 @@ import { isSilenced } from "../../state/tabs/mute";
 import { groupEntries, keptEntries } from "../../state/sidebar/entries";
 import { GROUP_BORDER, GROUP_GAP, GROUP_INDENT, GROUP_INSET, GROUP_RADIUS, groupMembersPadBottom } from "./geometry";
 import { headGap } from "../../state/sidebar/geometry";
+import { GROUP_ROW_HEIGHT } from "./rowHeight";
 import { pointerOnGroup, pointerOnRow } from "../../state/sidebar/hover";
 import { FaviconFallback, NewTabIcon } from "../favicon/Favicon";
 import { TabIcon } from "./TabIcon";
@@ -91,13 +92,13 @@ function ghostIcon(shot: TabShot, theme: ReturnType<typeof useTheme>) {
   return shot.url ? <FaviconFallback url={shot.url} /> : <NewTabIcon />;
 }
 
-function tabGhost(shot: TabShot, theme: ReturnType<typeof useTheme>, top = 0) {
+function tabGhost(shot: TabShot, theme: ReturnType<typeof useTheme>, top = 0, rowHeight: number = layout.rowHeight) {
   return (
     <View
       key={shot.key}
       style={{
         marginTop: top,
-        height: layout.rowHeight,
+        height: rowHeight,
         borderRadius: radius.chrome,
         flexDirection: "row",
         alignItems: "center",
@@ -114,14 +115,14 @@ function tabGhost(shot: TabShot, theme: ReturnType<typeof useTheme>, top = 0) {
   );
 }
 
-function SplitGhost({ shot }: { shot: SplitShot }) {
+function SplitGhost({ shot, rowHeight = layout.rowHeight }: { shot: SplitShot; rowHeight?: number }) {
   const theme = useTheme();
   return (
-    <View style={{ height: layout.rowHeight, borderRadius: radius.chrome, flexDirection: "row", alignItems: "center", paddingHorizontal: space.xs }}>
+    <View style={{ height: rowHeight, borderRadius: radius.chrome, flexDirection: "row", alignItems: "center", paddingHorizontal: space.xs }}>
       {shot.panes.map((pane, i) => (
         <View key={pane.key} style={{ flex: 1, flexDirection: "row", alignItems: "center", minWidth: 0, gap: space.xxs }}>
           {i > 0 && <Divider vertical thick length={16} />}
-          <View style={{ flex: 1, minWidth: 0, height: layout.rowHeight - 6, flexDirection: "row", alignItems: "center", paddingLeft: space.s }}>
+          <View style={{ flex: 1, minWidth: 0, height: rowHeight - 6, flexDirection: "row", alignItems: "center", paddingLeft: space.s }}>
             <TabIcon url={pane.url} favicon={pane.favicon} icon={pane.icon} profileId={pane.profileId} compact />
             <FadeLabel text={pane.title} fontSize={font.small.fontSize} color={theme.textTab} style={{ flex: 1, height: 16, marginLeft: space.xs }} />
           </View>
@@ -140,19 +141,20 @@ function GroupGhost({ shot }: { shot: GroupShot }) {
   return (
     <View style={{ paddingVertical: GROUP_BORDER + GROUP_GAP }}>
       {shot.hovered || groupBoxAtRest(shot.color) ? <View style={{ position: "absolute", left: 0, right: 0, top: GROUP_GAP, bottom: GROUP_GAP, borderRadius: GROUP_RADIUS, backgroundColor: fill, borderWidth: GROUP_BORDER, borderColor: stroke }} /> : null}
-      <View style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", paddingLeft: TAB_ROW.contentLeft, paddingRight: TAB_ROW.trailing }}>
-        {shot.icon ? <TabIcon url={shot.icon.url} favicon={shot.icon.favicon} icon={shot.icon.icon} profileId={shot.icon.profileId} /> : <View style={{ width: 16 }} />}
+      <View style={{ height: GROUP_ROW_HEIGHT, flexDirection: "row", alignItems: "center", paddingLeft: TAB_ROW.contentLeft, paddingRight: TAB_ROW.trailing }}>
+        {shot.icon ? <TabIcon url={shot.icon.url} favicon={shot.icon.favicon} icon={shot.icon.icon} profileId={shot.icon.profileId} /> : null}
         <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap, paddingRight: space.m, justifyContent: "center" }}>
           <Text lines={1} weight="medium" style={MEASURE_LABEL}>
             {shot.label}
           </Text>
           <FadeLabel text={shot.label} fontSize={font.body.fontSize} weight="medium" color={tokens.groupTitle} style={{ position: "absolute", left: 0, right: 0, top: 0, height: TAB_ROW.titleHeight }} />
         </View>
+        <View style={{ flex: 1 }} />
         <View style={{ width: 10, height: 10, transform: [{ rotate: shot.collapsed ? "-90deg" : "0deg" }] }}>
           <Symbol name="chevron.down" size={9} weight="semibold" color={withAlpha(tokens.groupTitle, 0.5)} style={{ width: 10, height: 10 }} />
         </View>
       </View>
-      <View style={{ gap: layout.rowGap, paddingTop: headGap(shot.members[0]?.key), paddingBottom: groupMembersPadBottom(shot.members.length), paddingLeft: GROUP_INDENT, paddingRight: GROUP_INSET }}>{shot.members.map((m) => (m.kind === "split" ? <SplitGhost key={m.key} shot={m} /> : m.kind === "group" ? <GroupGhost key={m.key} shot={m} /> : tabGhost(m, theme)))}</View>
+      <View style={{ gap: layout.rowGap, paddingTop: headGap(shot.members[0]?.key), paddingBottom: groupMembersPadBottom(shot.members.length), paddingLeft: GROUP_INDENT, paddingRight: GROUP_INSET }}>{shot.members.map((m) => (m.kind === "split" ? <SplitGhost key={m.key} shot={m} rowHeight={GROUP_ROW_HEIGHT} /> : m.kind === "group" ? <GroupGhost key={m.key} shot={m} /> : tabGhost(m, theme, 0, GROUP_ROW_HEIGHT)))}</View>
     </View>
   );
 }
