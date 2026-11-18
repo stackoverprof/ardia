@@ -40,7 +40,6 @@ type PageRowsProps = {
   onListHeight: (height: number) => void;
 };
 
-const DOCKED_TILES_GAP = SCROLL_EDGE.gap + SCROLL_EDGE.line + SCROLL_EDGE.inset;
 
 export function PageRows({ windowId, profileId, current, rows, lazy, offScreen, tiles, underDockedTiles, innerWidth, inlineNewTab, controller, geometry, regions, onListHeight }: PageRowsProps) {
   const [captured] = useState(newCapture);
@@ -102,7 +101,7 @@ export function PageRows({ windowId, profileId, current, rows, lazy, offScreen, 
           <ClearDivider
             windowId={windowId}
             profileId={profileId}
-            lift={underDockedTiles && !pinnedSection && !isIncognitoProfile(profileId) ? DOCKED_TILES_GAP : 0}
+            lift={0} // (fork) never tucked up under the docked tiles: Clear needs room from the tiles above
             clear={clearable}
             tidy={tidy}
             pinned={pinnedSection ? { collapsed, open: pinnedFold.open } : null}

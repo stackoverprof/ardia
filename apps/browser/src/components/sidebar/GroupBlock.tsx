@@ -9,9 +9,8 @@ import { useSelectionInGroup } from "../../state/pins/hooks";
 import { newCapture } from "../../state/sidebar/listCapture";
 import { useCapturedGroupEntries, useGroupFirstTabIcon, useGroupTabIds, useKeptEntries, useShowsExtraTabs } from "../../state/sidebar/hooks";
 import { MeetingTimeLabel, useMeetingCountdown } from "../live/MeetingCountdown";
-import { HoverSlot } from "../ui/HoverSlot";
 import { iconButton } from "../ui/tokens";
-import { Button, ContextMenuArea, FadeLabel, font, ink, space, Symbol, Text, weight, withAlpha } from "../ui";
+import { ContextMenuArea, FadeLabel, font, ink, space, Symbol, Text, weight, withAlpha } from "../ui";
 import { commitRename, endRename } from "../../state/sidebar/actions";
 import { useDragFolded, useDragItem, useDropInto } from "./DragProvider";
 import { useShift, type EntryMotion } from "./EntryMotion";
@@ -22,7 +21,6 @@ import { dismissHover } from "../../state/sidebar/hover";
 import { useGroupHover, useRowHover } from "./hoverController";
 import { HOVER_CARD_FADE_MS } from "./hoverMotion";
 import { GhostSlot, ListMotionContext, useGroupMotion } from "./ListMotion";
-import { pressGroupClose, useGroupCloseControlWhile } from "../../state/sidebar/closeControl";
 import { openGroupMenu } from "../../state/sidebar/menus";
 import { registerRow, useSidebarUi } from "../../state/sidebar/sidebarUi";
 import { TabIcon } from "./TabIcon";
@@ -184,7 +182,6 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
   const dropInto = useDropInto() === groupId;
   const { hovered, hoverProps } = useRowHover(windowId, collapsed && !renaming ? { kind: "group", id: groupId } : null);
   const countdown = useMeetingCountdown(groupId);
-  const closeControl = useGroupCloseControlWhile(groupId, hovered && !renaming);
   const profileId = usePageProfileId();
   const showsExtra = useShowsExtraTabs(windowId, profileId, groupId);
   if (!group) return null;
@@ -231,14 +228,12 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
                   <SharedFolderMark groupId={groupId} />
                 </Animated.View>
               )}
-              <HoverSlot
-                hovered={hovered && !renaming}
-                hover={closeControl && <Button variant="icon" icon={closeControl.icon} size="s" weight="semibold" onPress={() => pressGroupClose(groupId)} tooltip={closeControl.tooltip} />}
-              >
+              {/* (fork) no close button on the header: just the chevron; Close Group lives in the right-click menu */}
+              <View>
                 {countdown.label && !renaming ? (
                   <MeetingTimeLabel label={countdown.label} urgent={countdown.urgent} />
                 ) : renaming ? null : (
-                  // (fork) the chevron sits at the right edge, in the close button's slot; the button replaces it on hover
+                  // (fork) the chevron sits at the right edge, in the close button's slot
                   <View style={{ width: iconButton.s.box, alignItems: "center" }}>
                     <Animated.View
                       style={{
@@ -253,7 +248,7 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
                     </Animated.View>
                   </View>
                 )}
-              </HoverSlot>
+              </View>
             </SidebarRowSurface>
           )}
         </Pressable>
