@@ -725,3 +725,61 @@ async def stop_stream(ctx):
     for client in list(stream["clients"]):
         await client.close()
     await stream["cast"].stop(ctx.state)
+
+
+# (fork) GIF frames for Erbin's walkthrough slides: screenshots the session's tab about `fps` times a
+# second, in the background, while other commands drive the step. Works on a background tab (no
+# screencast, which Ardia's policy blocks). Output matches ~/.claude/skills/walkthrough/gif/compose.py:
+# DIR/frames/0000.jpg... and DIR/frames.json {viewport, deviceScaleFactor, frames: [{file, t}]}.
+@command("frames")
+async def cmd_frames(ctx, argv):
+    flags, args = parse(argv, {"--fps": "value"})
+    need(args, 1, "frames start <dir> [--fps 15] | stop")
+    action = args[0]
+    if action == "stop":
+        rec = ctx.state.extras.pop("frames", None)
+        if not rec:
+            raise BrowseError("No frame recording is running")
+        ctx.state.leases.discard("frames")
+        rec["stop"] = True
+        await asyncio.gather(rec["task"], return_exceptions=True)
+        frames = rec["frames"]
+        out = {"viewport": rec["viewport"], "deviceScaleFactor": rec["scale"], "frames": frames}
+        Path(rec["dir"], "frames.json").write_text(json.dumps(out, indent=1))
+        seconds = frames[-1]["t"] - frames[0]["t"] if frames else 0
+        return Result({"dir": rec["dir"], "count": len(frames), "seconds": seconds},
+                      f"✓ {len(frames)} frames over {seconds:.1f}s -> {rec['dir']}/frames.json")
+    if action != "start":
+        raise Usage(f"Unknown frames action: {action}")
+    need(args, 2, "frames start <dir> [--fps 15]")
+    if ctx.state.extras.get("frames"):
+        raise BrowseError("A frame recording is already running; stop it first")
+    from ardia_cli.browse.media import capture_png
+
+    fps = max(1, min(30, int(flags.get("fps") or 15)))
+    page = await ctx.state.page()
+    folder = Path(ctx.path(args[1]))
+    (folder / "frames").mkdir(parents=True, exist_ok=True)
+    probe = await page.send("Runtime.evaluate", {"expression": "[innerWidth, innerHeight, devicePixelRatio]", "returnByValue": True})
+    width, height, scale = (probe.get("result") or {}).get("value") or [None, None, 1]
+    # Device pixels: 2x on a Retina screen, 1x on a 1x monitor. (A scaled clip hangs on a background tab.)
+    rec = {"dir": str(folder), "frames": [], "stop": False, "scale": scale,
+           "viewport": {"width": width, "height": height} if width else None}
+
+    async def loop():
+        interval = 1 / fps
+        while not rec["stop"]:
+            t0 = time.monotonic()
+            try:
+                data = await asyncio.wait_for(capture_png(page, fmt="jpeg", quality=92), 5)
+                file = folder / "frames" / f"{len(rec['frames']):04d}.jpg"
+                file.write_bytes(data)
+                rec["frames"].append({"file": str(file), "t": t0})
+            except Exception:
+                pass  # page mid-navigation: skip this frame
+            await asyncio.sleep(max(0, interval - (time.monotonic() - t0)))
+
+    rec["task"] = asyncio.ensure_future(loop())
+    ctx.state.extras["frames"] = rec
+    ctx.state.leases.add("frames")
+    return Result({"dir": str(folder), "started": True, "fps": fps}, f"✓ Recording frames into {folder} at {fps} fps")

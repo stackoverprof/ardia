@@ -288,6 +288,7 @@ COMMANDS = {
               "  EOF",
     "close": "ardia browse close [--all]\n\nCloses only the tabs this session opened (never the browser) and ends the session; a tab another\n"
              "session is using stays open and the answer says so. --all does it for every session.",
+    "frames": "ardia browse frames start <dir> [--fps 15] | stop\n\n(fork) Screenshots the tab into <dir>/frames/*.jpg plus frames.json for walkthrough GIFs; works on a background tab.",
     "record": "ardia browse record start <path.webm> [url] | stop | restart <path.webm> [url]\n\nNeeds Page.startScreencast (not allowed by Ardia's policy yet) and ffmpeg on PATH.",
     "stream": "ardia browse stream enable [--port n] [--input] | disable | status\n\nBinds 127.0.0.1 only, with its own random token in the URL; view only unless --input. Needs Page.startScreencast.",
     "react": "ardia browse react tree | inspect <id> | renders start | renders stop | suspense [--only-dynamic]\n\nNeeds `ardia browse open --enable react-devtools <url>`.",

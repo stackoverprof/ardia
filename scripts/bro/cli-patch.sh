@@ -22,7 +22,12 @@ patched=0
 for f in $changed; do
   dest="$site/ardia_cli/$f"
   if cmp -s "apps/cli/ardia_cli/$f" "$dest"; then continue; fi
-  if git show "v$version:apps/cli/ardia_cli/$f" 2>/dev/null | cmp -s - "$dest"; then
+  # Overwrite upstream's copy, or an older copy of ours (any committed fork version of the file).
+  ours_before=0
+  for rev in $(git rev-list "v$version..HEAD" -- "apps/cli/ardia_cli/$f"); do
+    if git show "$rev:apps/cli/ardia_cli/$f" 2>/dev/null | cmp -s - "$dest"; then ours_before=1; break; fi
+  done
+  if [ "$ours_before" = 1 ] || git show "v$version:apps/cli/ardia_cli/$f" 2>/dev/null | cmp -s - "$dest"; then
     cp "apps/cli/ardia_cli/$f" "$dest"
     rm -rf "$(dirname "$dest")/__pycache__"
     echo "patched $f"
