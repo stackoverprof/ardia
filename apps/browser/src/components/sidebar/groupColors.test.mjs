@@ -15,10 +15,9 @@ test("every colour a group can take draws its box at rest, in its own tint", () 
   }
 });
 
-test("a neutral group keeps Dia's look, its box only under the pointer, and None never draws one", () => {
-  assert.equal(groupBoxAtRest(null), false);
-  assert.equal(groupBoxAtRest(undefined), false);
-  assert.equal(groupBoxAtRest("none"), false);
+test("(fork) every group shows its box at rest, and None's box stays transparent", () => {
+  assert.equal(groupBoxAtRest(null), true);
+  assert.equal(groupBoxAtRest(undefined), true);
   assert.deepEqual(groupSurface(null, TOKENS), { fill: TOKENS.groupFill, stroke: TOKENS.groupStroke });
   assert.deepEqual(groupSurface("none", TOKENS), { fill: "transparent", stroke: "transparent" });
 });

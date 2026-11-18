@@ -9,7 +9,7 @@ import { shownPinnedEntries } from "./pinnedFold";
 import { entryId, entryKey } from "./entryKey";
 import { pinSection } from "../browser/model";
 
-const GROUP_BORDER = SIDEBAR_GROUP.border;
+const GROUP_BORDER = SIDEBAR_GROUP.border + SIDEBAR_GROUP.gap; // (fork) border + gap around the box
 const ROW = SIDEBAR_ROW.height;
 const GAP = SIDEBAR_ROW.gap;
 

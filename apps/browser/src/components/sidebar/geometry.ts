@@ -9,6 +9,7 @@ export const GROUP_BORDER = SIDEBAR_GROUP.border;
 export const GROUP_RADIUS = SIDEBAR_GROUP.radius;
 export const GROUP_INNER_RADIUS = GROUP_RADIUS - GROUP_BORDER;
 export const GROUP_INSET = SIDEBAR_GROUP.inset;
+export const GROUP_GAP = SIDEBAR_GROUP.gap; // (fork) space above and below each group box
 export const groupMembersPadBottom = (shown: number) => (shown ? GROUP_MEMBERS_PAD_BOTTOM : 0);
 
 export const SIDEBAR_FIELD = { top: 46, height: layout.rowHeight, radius: radius.chrome } as const;

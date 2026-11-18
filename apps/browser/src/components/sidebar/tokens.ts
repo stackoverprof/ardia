@@ -96,7 +96,8 @@ export function groupTint(color: GroupColor | null | undefined): string | null {
   return color && color !== "none" ? (GROUP_COLORS[color]?.hex ?? null) : null;
 }
 
-export const groupBoxAtRest = (color: GroupColor | null | undefined) => groupTint(color) !== null;
+// (fork) Group boxes always show, so groups read apart at a glance (a "none" colour stays transparent).
+export const groupBoxAtRest = (_color: GroupColor | null | undefined) => true;
 
 export function groupSurface(color: GroupColor | null | undefined, tokens: SidebarTokens): { fill: string; stroke: string } {
   if (color === "none") return { fill: "transparent", stroke: "transparent" };

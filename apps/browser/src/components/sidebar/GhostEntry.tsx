@@ -9,7 +9,7 @@ import { groupLabel } from "../../state/pins/tabGrouping";
 import { splitRowPanes } from "../../state/splits/splits";
 import { isSilenced } from "../../state/tabs/mute";
 import { groupEntries, keptEntries } from "../../state/sidebar/entries";
-import { GROUP_BORDER, GROUP_INDENT, GROUP_INSET, GROUP_RADIUS, groupMembersPadBottom } from "./geometry";
+import { GROUP_BORDER, GROUP_GAP, GROUP_INDENT, GROUP_INSET, GROUP_RADIUS, groupMembersPadBottom } from "./geometry";
 import { headGap } from "../../state/sidebar/geometry";
 import { pointerOnGroup, pointerOnRow } from "../../state/sidebar/hover";
 import { FaviconFallback, NewTabIcon } from "../favicon/Favicon";
@@ -138,8 +138,8 @@ function GroupGhost({ shot }: { shot: GroupShot }) {
   const tokens = useSidebarTokens();
   const { fill, stroke } = groupSurface(shot.color, tokens);
   return (
-    <View style={{ paddingVertical: GROUP_BORDER }}>
-      {shot.hovered || groupBoxAtRest(shot.color) ? <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: GROUP_RADIUS, backgroundColor: fill, borderWidth: GROUP_BORDER, borderColor: stroke }} /> : null}
+    <View style={{ paddingVertical: GROUP_BORDER + GROUP_GAP }}>
+      {shot.hovered || groupBoxAtRest(shot.color) ? <View style={{ position: "absolute", left: 0, right: 0, top: GROUP_GAP, bottom: GROUP_GAP, borderRadius: GROUP_RADIUS, backgroundColor: fill, borderWidth: GROUP_BORDER, borderColor: stroke }} /> : null}
       <View style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", paddingLeft: TAB_ROW.contentLeft, paddingRight: TAB_ROW.trailing }}>
         {shot.icon ? <TabIcon url={shot.icon.url} favicon={shot.icon.favicon} icon={shot.icon.icon} profileId={shot.icon.profileId} /> : <View style={{ width: 16 }} />}
         <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap, paddingRight: space.m, justifyContent: "center" }}>

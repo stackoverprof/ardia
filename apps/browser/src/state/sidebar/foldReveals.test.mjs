@@ -195,9 +195,9 @@ test("each tab kept under a collapsed header has its own row position, one row g
   const row = height("t:t0");
   const first = rowSpan(S(), "w", "default", "t3", false);
   const second = rowSpan(S(), "w", "default", "t5", false);
-  assert.equal(first.top, 2 * (row + rowGap()) + 0.5 + row);
+  assert.equal(first.top, 2 * (row + rowGap()) + 3.5 + row);
   assert.equal(second.top, first.top + row + rowGap());
-  assert.equal(rowSpan(S(), "w", "default", "t4", false).top, 2 * (row + rowGap()) + 0.5);
+  assert.equal(rowSpan(S(), "w", "default", "t4", false).top, 2 * (row + rowGap()) + 3.5);
 });
 
 test("a tab dragged from the parent's reveals into a collapsed group inside it is not kept under the parent", () => {

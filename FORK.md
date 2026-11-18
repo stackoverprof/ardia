@@ -46,6 +46,8 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 - The sidebar keeps a **darker ground** than the window frame, docked or sliding.
 - The **profile name is in the footer**, at the left, with the profile dots at the right; evenly padded.
 
+- **Each tab group in its own box.** Every group's box shows at rest (upstream shows it only on hover or for a coloured group), with a little space between boxes and tabs not indented inside. The header shows only the group's own icon, never its first tab's favicon, so it no longer looks like a tab (`SIDEBAR_GROUP` in `lib/sidebarMetrics.ts`, `groupBoxAtRest` in `sidebar/tokens.ts`, `GroupBlock.tsx`).
+
 ## Window frame
 
 - A thinner, **lighter** wash over the blurred desktop (white wash in dark mode), so the frame reads as see-through.
