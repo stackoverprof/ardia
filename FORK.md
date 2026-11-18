@@ -46,7 +46,7 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 - The sidebar keeps a **darker ground** than the window frame, docked or sliding.
 - The **profile name is in the footer**, at the left, with the profile dots at the right; evenly padded.
 
-- **Each tab group in its own box.** Every group's box shows at rest (upstream shows it only on hover or for a coloured group), with a little space between boxes and tabs not indented inside. Rows inside a box (header and tabs) are 28pt instead of 34pt, so a group reads compact (`SIDEBAR_GROUP_ROW`, the `RowHeight` context in `sidebar/rowHeight.ts`, and the `inGroup` flag in `state/sidebar/geometry.ts`). The group's chevron sits at the right edge. The header shows only the group's own icon, never its first tab's favicon, so it no longer looks like a tab (`SIDEBAR_GROUP` in `lib/sidebarMetrics.ts`, `groupBoxAtRest` in `sidebar/tokens.ts`, `GroupBlock.tsx`).
+- **Each tab group in its own box.** Every group's box shows at rest (upstream shows it only on hover or for a coloured group), with a little space between boxes and tabs not indented inside. Rows inside a box (header and tabs) are 28pt instead of 34pt, so a group reads compact (`SIDEBAR_GROUP_ROW`, the `RowHeight` context in `sidebar/rowHeight.ts`, and the `inGroup` flag in `state/sidebar/geometry.ts`). The group's chevron sits at the right edge, in the close button's slot (the button replaces it on hover). The header shows only the group's own icon, never its first tab's favicon, so it no longer looks like a tab (`SIDEBAR_GROUP` in `lib/sidebarMetrics.ts`, `groupBoxAtRest` in `sidebar/tokens.ts`, `GroupBlock.tsx`).
 
 ## Window frame
 
