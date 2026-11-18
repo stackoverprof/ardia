@@ -143,7 +143,7 @@ function GroupGhost({ shot }: { shot: GroupShot }) {
       {shot.hovered || groupBoxAtRest(shot.color) ? <View style={{ position: "absolute", left: 0, right: 0, top: GROUP_GAP, bottom: GROUP_GAP, borderRadius: GROUP_RADIUS, backgroundColor: fill, borderWidth: GROUP_BORDER, borderColor: stroke }} /> : null}
       <View style={{ height: GROUP_ROW_HEIGHT, flexDirection: "row", alignItems: "center", paddingLeft: TAB_ROW.contentLeft, paddingRight: TAB_ROW.trailing }}>
         {shot.icon ? <TabIcon url={shot.icon.url} favicon={shot.icon.favicon} icon={shot.icon.icon} profileId={shot.icon.profileId} /> : null}
-        <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap, paddingRight: space.m, justifyContent: "center" }}>
+        <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, marginLeft: shot.icon ? TAB_ROW.titleGap : GROUP_INDENT, paddingRight: space.m, justifyContent: "center" }}>
           <Text lines={1} weight="medium" style={MEASURE_LABEL}>
             {shot.label}
           </Text>

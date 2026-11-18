@@ -220,7 +220,7 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
                   onDone={(text) => (text === null ? endRename(target) : commitRename(target, text))}
                 />
               ) : (
-                <Animated.View style={{ flex: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap, flexDirection: "row", alignItems: "center", transform: [{ rotate: countdown.rotate }] }}>
+                <Animated.View style={{ flex: 1, height: TAB_ROW.titleHeight, marginLeft: group.icon ? TAB_ROW.titleGap : GROUP_INDENT /* (fork) lines up with the tab icons below */, flexDirection: "row", alignItems: "center", transform: [{ rotate: countdown.rotate }] }}>
                   <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, paddingRight: space.m, justifyContent: "center" }}>
                     <Text lines={1} weight="medium" style={MEASURE_LABEL}>
                       {label}
