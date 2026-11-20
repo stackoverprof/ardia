@@ -12,7 +12,8 @@ import { type ToolbarPalette } from "../ui/toolbarColors";
 export const ZoomIndicator = memo(function ZoomIndicator({ tabId, zoom, palette, onFocus }: { tabId: string; zoom: number; palette: ToolbarPalette; onFocus: () => void }) {
   const open = usePages((p) => p.popover[tabId] === "zoom");
   const actualSize = Math.abs(zoom - 1) < 0.001;
-  if (actualSize && !open) return null;
+  // (fork) no zoom button in the toolbar at rest; it only shows while its popover is open (⌘+ / ⌘-)
+  if (!open) return null;
   return (
     <Button variant="icon" toolbar
       look="field"

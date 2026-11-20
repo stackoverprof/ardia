@@ -10,7 +10,7 @@ import { openPanel as openWindowPanel, toggleSidebar } from "../../state/windows
 import { QuietLightDots } from "../window/QuietLightDots";
 import { useIsBookmarked, useSettings, useSidebarSide, useTab, useTabLayout, useTabLive, useTabsShown, useWindowFullScreen } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
-import { Button, ContextMenuArea, Divider, FadeLabel, font, ink, layout, space, Symbol, Text, useHover, WindowDragRegion } from "../ui";
+import { Button, ContextMenuArea, Divider, FadeLabel, font, ink, layout, space, Symbol, Text, useHover, WindowDragRegion, withAlpha } from "../ui";
 import { type ToolbarGeometry } from "../window/geometry";
 import { usePage, usePages, type PageState } from "../../state/tabs/pageState";
 import { togglePopover } from "../../state/tabs/popoverDismiss";
@@ -234,10 +234,13 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
       <View pointerEvents="box-none" style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
           <Animated.View style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
-            <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center", paddingHorizontal: 8, opacity: domain.hovered ? 1 : DOMAIN_REST }}>
-              <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={HOST_FULL}>
-                {field.host}
-              </Text>
+            <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center" }}>
+              {/* (fork) on hover the domain sits in a soft rounded pill, like a button */}
+              <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: 8, borderRadius: DOMAIN_PILL.radius, backgroundColor: domain.hovered ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
+                <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={[HOST_FULL, { opacity: domain.hovered ? 1 : DOMAIN_REST }]}>
+                  {field.host}
+                </Text>
+              </View>
             </Pressable>
           </Animated.View>
           <Animated.View pointerEvents="none" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: swap }}>
@@ -295,6 +298,7 @@ export const SidebarUrlField = memo(function SidebarUrlField({ tab, palette, win
 });
 
 const DOMAIN_REST = 0.5;
+const DOMAIN_PILL = { height: 24, radius: 8, fill: 0.12 } as const;
 const HOST_FULL = { flexShrink: 0, maxWidth: "100%" } as const;
 const SHRINK = { flexShrink: 1 } as const;
 
