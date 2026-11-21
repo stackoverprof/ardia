@@ -18,7 +18,7 @@ export function ProgressBar({ progress, color }: { progress: number; color: stri
     const to = Math.max(progress, PROGRESS.floor);
     if (shownFor.current === to) return;
     shownFor.current = to;
-    Animated.timing(width, { toValue: to, duration: TOOLBAR_MOTION.progress, easing: curve.enter, useNativeDriver: false }).start();
+    Animated.timing(width, { toValue: to, duration: TOOLBAR_MOTION.show, /* (fork) upstream dropped TOOLBAR_MOTION.progress; same 150 ms */ easing: curve.enter, useNativeDriver: false }).start();
   }, [progress]);
   return <ProgressTrack value={width} height={PROGRESS.height} color={color} track={false} style={PLACE} />;
 }

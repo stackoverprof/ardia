@@ -6,6 +6,10 @@ const Dialogs = nativeModule("ArdiaDialogs");
 
 // (fork) shown text says Bro
 export const confirm = (options: ConfirmOptions) => Dialogs.confirm(brandDeep(options));
+export const canDismissShownOnlyDialogs = () => Dialogs.dismissesShownOnly === true;
+export const dismissShownOnlyDialogs = async (key?: string) => {
+  await Dialogs.dismissShownOnly?.(key ?? null);
+};
 export const prompt = (options: PromptOptions) => Dialogs.prompt(brandDeep(options));
 export const pickFiles = () => Dialogs.pickFiles();
 export const pickFolder = (current: string | null, prompt: string | null = null) => Dialogs.pickFolder(current, prompt);

@@ -8,6 +8,7 @@ import { groupEntries, holdsTab, keptEntries, sidebarEntries } from "./entries";
 import { shownPinnedEntries } from "./pinnedFold";
 import { entryId, entryKey } from "./entryKey";
 import { pinSection } from "../browser/model";
+import { windowRootSize } from "../windows/rootSize";
 
 const GROUP_BORDER = SIDEBAR_GROUP.border + SIDEBAR_GROUP.gap; // (fork) border + gap around the box
 const ROW = SIDEBAR_ROW.height;
@@ -17,7 +18,7 @@ const rowIn = (inGroup: boolean) => (inGroup ? GROUP_ROW : ROW);
 
 export type Section = "pinnedGroups" | "list";
 
-export const headGap = (first: string | null | undefined): number => (first && entryId(first, "group") !== null ? GAP : 0);
+export const headGap = (first: string | null | undefined): number => (first && entryId(first, "group") !== null ? SIDEBAR_ROW.gap : 0);
 
 function stackHeight(s: BrowserState, windowId: string, profileId: string, entries: string[]): number {
   return entries.length ? headGap(entries[0]) + entriesHeight(s, windowId, profileId, entries, true) + GROUP_MEMBERS_PAD_BOTTOM : 0;
@@ -41,7 +42,7 @@ export function entriesHeight(s: BrowserState, windowId: string, profileId: stri
 export function entriesWithin(s: BrowserState, windowId: string, profileId: string, entries: string[], height: number): number {
   let top = 0;
   let n = 0;
-  while (n < entries.length && top < height) top += entryHeight(s, windowId, profileId, entries[n++]!) + GAP;
+  while (n < entries.length && top < height) top += entryHeight(s, windowId, profileId, entries[n++]!) + SIDEBAR_ROW.gap;
   return n;
 }
 
@@ -50,7 +51,7 @@ export const FIRST_PAINT_HEIGHT = 2400;
 
 export function firstPaintEntries(s: BrowserState, windowId: string, profileId: string, entries: string[], lazy: boolean): number {
   if (!lazy) return EAGER_FIRST_PAINT_ENTRIES;
-  return Math.max(1, entriesWithin(s, windowId, profileId, entries, s.windows[windowId]?.frame?.[3] ?? FIRST_PAINT_HEIGHT));
+  return Math.max(1, entriesWithin(s, windowId, profileId, entries, windowRootSize(s, windowId)?.height ?? FIRST_PAINT_HEIGHT));
 }
 
 export const startsOffScreen = (lazy: boolean, current: boolean) => lazy && !current;
@@ -65,7 +66,7 @@ export function rowSpan(
   const { pinned, list } = sidebarEntries(s, windowId, profileId);
   const sections: [Section, string[], number][] = [
     ["pinnedGroups", shownPinnedEntries(s, windowId, profileId, pinned), 0],
-    ["list", list, newTabAtTop ? ROW + GAP : 0],
+    ["list", list, newTabAtTop ? SIDEBAR_ROW.height + SIDEBAR_ROW.gap : 0],
   ];
   const within = (entries: string[], top: number, inGroup: boolean): { top: number; height: number } | null => {
     for (const entry of entries) {
