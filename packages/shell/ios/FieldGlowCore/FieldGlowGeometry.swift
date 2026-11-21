@@ -85,7 +85,14 @@ public enum FieldGlowGeometry {
   static func fadingPast(body: Double, front: Double, falloff: [Double]) -> [(Double, Double)] {
     let span = body + front
     guard span > 0, falloff.count > 1 else { return [(0, 1)] }
-    return [(0, 1)] + falloff.enumerated().map { i, alpha in ((body + front * Double(i) / Double(falloff.count - 1)) / span, alpha) }
+    // (fork) spelled out: Xcode 26 can't type-check the one-expression version in time
+    let last = Double(falloff.count - 1)
+    var out: [(Double, Double)] = [(0, 1)]
+    for (i, alpha) in falloff.enumerated() {
+      let at: Double = (body + front * Double(i) / last) / span
+      out.append((at, alpha))
+    }
+    return out
   }
 
   static func plate(_ look: FieldGlowLook, _ stops: [(Double, Double)], _ fade: [(Double, Double)], extra: Double) -> FieldGlowPlateStops {

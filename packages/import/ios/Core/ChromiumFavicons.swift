@@ -12,12 +12,21 @@ public enum ChromiumFavicons {
       node.type == .url ? node.url.map { [$0] } ?? [] : (node.children ?? []).flatMap(links)
     }
     let toolbar = (result.bookmarks?.children ?? []).filter { $0.role == "toolbar" }.flatMap(links)
-    return result.favorites.map(\.url)
-      + result.spaces.flatMap {
-        $0.pinned.flatMap(links) + $0.tabs.map(\.url) + ($0.openGroups ?? []).flatMap(links) + ($0.favorites ?? []).map(\.url)
-      }
-      + result.tabs.map(\.url)
-      + toolbar
+    // (fork) spelled out step by step: Xcode 26 can't type-check the one-expression version in time
+    var all: [String] = result.favorites.map(\.url)
+    for space in result.spaces {
+      let pinned: [String] = space.pinned.flatMap(links)
+      let tabs: [String] = space.tabs.map(\.url)
+      let groups: [String] = (space.openGroups ?? []).flatMap(links)
+      let favorites: [String] = (space.favorites ?? []).map(\.url)
+      all += pinned
+      all += tabs
+      all += groups
+      all += favorites
+    }
+    all += result.tabs.map(\.url)
+    all += toolbar
+    return all
   }
 
   public static func read(profiles: [URL], pages: [String]) -> [ImportedFavicon] {

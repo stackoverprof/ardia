@@ -20,7 +20,7 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
 - **No auto-update:** `SUFeedURL` is empty and `SUEnableAutomaticChecks` is false, because the official feed would
   replace Bro with stock Ardia. Updates come from merging upstream here.
 - **Builds with Xcode 26:** upstream builds with Xcode 27. Patched: `preferredImageVisibility` removed in
-  `MenusModule.swift` and `SharePicker.swift`; one expression spelled out in `ThemeGradient.swift`. Drop these once
+  `MenusModule.swift` and `SharePicker.swift`; one expression spelled out in `ThemeGradient.swift` and one each in `ChromiumFavicons.swift` and `FieldGlowGeometry.swift`. Drop these once
   this Mac has Xcode 27.
 
 ## Toolbar
