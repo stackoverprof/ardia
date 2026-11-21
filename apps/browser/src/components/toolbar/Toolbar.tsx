@@ -277,7 +277,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           <Animated.View {...domain.hoverProps} style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
             <Pressable onPress={pressDomain} style={{ flexShrink: 1, height: row.field, justifyContent: "center" }}>
               {/* (fork) on hover the domain sits in a soft rounded pill, like a button */}
-              <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: 8, borderRadius: DOMAIN_PILL.radius, backgroundColor: domainLit ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
+              <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: DOMAIN_PILL.padX, borderRadius: DOMAIN_PILL.radius, backgroundColor: domainLit ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
                 <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} ardiaCentersCapitals style={[HOST_FULL, { opacity: domainLit ? 1 : DOMAIN_REST }]}>
                   {field.host}
                 </Text>
@@ -344,7 +344,7 @@ export const SidebarUrlField = memo(function SidebarUrlField({ tab, palette, win
 });
 
 const DOMAIN_REST = 0.5;
-const DOMAIN_PILL = { height: 24, radius: 8, fill: 0.12 } as const;
+const DOMAIN_PILL = { height: 20, radius: 6, padX: 6, fill: 0.12 } as const;
 const HOST_FULL = { flexShrink: 0, maxWidth: "100%" } as const;
 const SHRINK = { flexShrink: 1 } as const;
 

@@ -7,11 +7,11 @@ import { curve, useGated } from "../ui/motion";
 import { Panel, reduceMotion, WindowBackdrop, WindowDragRegion } from "../ui";
 import { useSidebarSide, useWindowFullScreen, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
-import { useBrowser } from "../../state/browser/store";
 import { useShownSidebarWidth } from "../../state/sidebar/shownWidth";
-import { sidebarHeaderCollapsed, useAddressBarInSidebar, useCardTopInset, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
+import { useAddressBarInSidebar, useCardTopInset, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
 import { layout } from "../ui";
 import { Sidebar } from "../sidebar/Sidebar";
+import { sidebarHeaderOf } from "../sidebar/geometry";
 import { ResizeHandle } from "../sidebar/ResizeHandle";
 import { dismissHoverIn } from "../../state/sidebar/hover";
 import { sidebarUi, useSidebarUi } from "../../state/sidebar/sidebarUi";
@@ -263,10 +263,10 @@ function SidebarDock({
   // (fork) the peeking sidebar has no traffic lights, so the header row kept for them is dead space: pull the
   // content up over it, unless the address bar lives in the sidebar
   const addressInSidebar = useAddressBarInSidebar();
-  // 0.2.47 already shrinks the header row when it has nothing to hold (sidebarHeaderCollapsed); don't pull up twice
-  const headerCollapsed = useBrowser((s) => sidebarHeaderCollapsed(s, windowId));
-  const headerInUse = addressInSidebar || headerCollapsed;
-  const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
+  const headerInUse = addressInSidebar;
+  // The header follows the toolbar's lights (0.2.47: shorter with a compact toolbar), so lift by what it really is.
+  const header = sidebarHeaderOf(false, useToolbarLightsCenter()[1]);
+  const lift = peeking && !right && !fullscreen && !headerInUse ? Math.max(0, header + layout.pinnedTop - layout.sidebarHeader - layout.sidebarInset) : 0; // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
   const watching = watchesEdge(state, moving);
