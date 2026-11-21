@@ -19,7 +19,8 @@ export function useTopStripLights(windowId: string, dock: Animated.Value, on: bo
   }, [windowId, dock, on, travel, open]);
 }
 
-export type SidebarLights = { width: number; peeking: boolean; fullscreen: boolean; lights: readonly [number, number]; right: boolean; peekAt: { left: number; top: number } };
+// (fork) `minimal`: Minimalism mode, where there is no toolbar to hold the lights; `open`: the sidebar is docked open
+export type SidebarLights = { width: number; peeking: boolean; fullscreen: boolean; lights: readonly [number, number]; right: boolean; peekAt: { left: number; top: number }; minimal?: boolean; open?: boolean };
 
 export function useSidebarLights(windowId: string, dock: Animated.Value, slide: Animated.Value, o: SidebarLights) {
   const values = useRef({ dock: 1, slide: 0 });
@@ -54,17 +55,19 @@ export function useSidebarLights(windowId: string, dock: Animated.Value, slide: 
     return () => slide.removeListener(b);
   }, [slide, o.peeking]);
   // (fork) the peeking sidebar shows no traffic lights: they belong to the toolbar it slides over
-  const concealed = o.peeking && !o.right && !o.fullscreen;
+  // (fork) In Minimalism mode it's the other way round: no toolbar, so the lights hide over the page and come out with
+  // the sidebar (docked or peeking), sliding in with it
+  const concealed = o.minimal ? !o.fullscreen && !o.peeking && !o.open : o.peeking && !o.right && !o.fullscreen;
   useEffect(() => {
     void setTrafficLightsHidden(windowId, concealed);
     return () => void setTrafficLightsHidden(windowId, false);
   }, [windowId, concealed]);
-  useEffect(() => apply.current(), [o.width, o.peeking, o.fullscreen, o.lights, o.right, o.peekAt.left, o.peekAt.top]);
+  useEffect(() => apply.current(), [o.width, o.peeking, o.fullscreen, o.lights, o.right, o.peekAt.left, o.peekAt.top, o.minimal]);
 }
 
 export function slidingCenter(o: SidebarLights, dock: number, slide: number) {
   // (fork) a hidden left sidebar leaves the traffic lights where they are, at the toolbar's left, instead of sliding them out
-  if (o.peeking && !o.right && !o.fullscreen) return sidebarLightsCenter(false, o.width, 0, 0, o.lights); // (fork) hidden meanwhile, so left in place
+  if (!o.minimal && o.peeking && !o.right && !o.fullscreen) return sidebarLightsCenter(false, o.width, 0, 0, o.lights); // (fork) hidden meanwhile, so left in place
   const offset = o.fullscreen ? 0 : o.peeking ? (o.width + 12) * (1 - slide) - o.peekAt.left : o.right ? o.width * (1 - dock) : 0;
   return sidebarLightsCenter(o.right && !o.fullscreen, o.width, offset, o.peeking && !o.fullscreen ? o.peekAt.top : 0, o.lights);
 }

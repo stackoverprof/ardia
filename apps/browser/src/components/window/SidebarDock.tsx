@@ -8,7 +8,7 @@ import { Panel, reduceMotion, WindowBackdrop, WindowDragRegion } from "../ui";
 import { useSidebarSide, useWindowFullScreen, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
 import { useShownSidebarWidth } from "../../state/sidebar/shownWidth";
-import { useAddressBarInSidebar, useCardTopInset, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
+import { useAddressBarInSidebar, useCardTopInset, useMinimalism, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
 import { layout } from "../ui";
 import { Sidebar } from "../sidebar/Sidebar";
 import { sidebarHeaderOf } from "../sidebar/geometry";
@@ -306,7 +306,8 @@ function SidebarDock({
     () => peek.slide.interpolate({ inputRange: [0, 1], outputRange: [-12 * outward, width * outward] }),
     [peek.slide, width, outward],
   );
-  useSidebarLights(windowId, dock, peek.slide, { width, peeking, fullscreen, lights, right, peekAt });
+  const minimal = useMinimalism(); // (fork) Minimalism mode puts the lights in the sidebar
+  useSidebarLights(windowId, dock, peek.slide, { width, peeking, fullscreen, lights, right, peekAt, minimal, open });
   const edgeSide = right ? "right" : "left";
   const sidebar = useMemo(
     () => (
