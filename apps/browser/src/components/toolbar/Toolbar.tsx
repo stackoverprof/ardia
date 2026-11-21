@@ -8,6 +8,8 @@ import { TOOLBAR_ROWS, toolbarTrailing, urlFieldOf, type ToolbarRow } from "../.
 import { ToolbarRowContext } from "../ui/toolbarRowContext";
 import { activate } from "../../state/tabs/actions";
 import { openPanel as openWindowPanel, toggleSidebar } from "../../state/windows/actions";
+import { cancelPanel } from "../../state/omnibox/barState";
+import { useBrowser } from "../../state/browser/store";
 import { QuietLightDots } from "../window/QuietLightDots";
 import { useIsBookmarked, useSettings, useSidebarSide, useTab, useTabLayout, useTabLive, useTabsPlace, useTabsShown, useWindowFullScreen } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
@@ -230,6 +232,20 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
   const [buttonsWidth, setButtonsWidth] = useState(0);
   // (fork) at rest the domain is the page ink let through the toolbar's tint (a deeper or paler shade of it); full ink on hover
   const domain = useHover();
+  // (fork) the domain toggles the command bar: a click while it is open closes it, and the pill stays while it is open.
+  // Clicking the domain counts as a click outside the bar, which may close it before the press lands, so a press
+  // just after it closed counts as the closing click too.
+  const barOpen = useBrowser((s) => s.windowUi[windowId]?.panel.open ?? false);
+  const barClosedAt = useRef(0);
+  useEffect(() => {
+    if (!barOpen) barClosedAt.current = Date.now();
+  }, [barOpen]);
+  const pressDomain = () => {
+    if (useBrowser.getState().windowUi[windowId]?.panel.open) return cancelPanel(windowId);
+    if (Date.now() - barClosedAt.current < 400) return;
+    field.openPanel();
+  };
+  const domainLit = domain.hovered || barOpen;
   const textLeft = insecure ? LOCK.gap : urlTextLeft(false);
   const leftInset = (typeof style.left === "number" ? style.left : 0) + (insecure ? LOCK.left + LOCK.width : 0) + textLeft;
   const rightInset = (typeof style.right === "number" ? style.right : 0) + buttonsWidth;
@@ -258,11 +274,11 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
           the empty toolbar either side of it still drags the window. */}
       <View pointerEvents="box-none" style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-          <Animated.View style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
-            <Pressable {...domain.hoverProps} onPress={field.openPanel} style={{ flexShrink: 1, height: row.field, justifyContent: "center" }}>
+          <Animated.View {...domain.hoverProps} style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
+            <Pressable onPress={pressDomain} style={{ flexShrink: 1, height: row.field, justifyContent: "center" }}>
               {/* (fork) on hover the domain sits in a soft rounded pill, like a button */}
-              <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: 8, borderRadius: DOMAIN_PILL.radius, backgroundColor: domain.hovered ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
-                <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} style={[HOST_FULL, { opacity: domain.hovered ? 1 : DOMAIN_REST }]}>
+              <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: 8, borderRadius: DOMAIN_PILL.radius, backgroundColor: domainLit ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
+                <Text numberOfLines={1} ellipsizeMode="head" weight="medium" color={palette.text} ardiaCentersCapitals style={[HOST_FULL, { opacity: domainLit ? 1 : DOMAIN_REST }]}>
                   {field.host}
                 </Text>
               </View>

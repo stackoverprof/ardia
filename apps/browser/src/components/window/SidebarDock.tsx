@@ -7,8 +7,9 @@ import { curve, useGated } from "../ui/motion";
 import { Panel, reduceMotion, WindowBackdrop, WindowDragRegion } from "../ui";
 import { useSidebarSide, useWindowFullScreen, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
+import { useBrowser } from "../../state/browser/store";
 import { useShownSidebarWidth } from "../../state/sidebar/shownWidth";
-import { useAddressBarInSidebar, useCardTopInset, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
+import { sidebarHeaderCollapsed, useAddressBarInSidebar, useCardTopInset, useSidebarControlsRowIn, useToolbarLightsCenter } from "../../state/windows/layout";
 import { layout } from "../ui";
 import { Sidebar } from "../sidebar/Sidebar";
 import { ResizeHandle } from "../sidebar/ResizeHandle";
@@ -262,7 +263,9 @@ function SidebarDock({
   // (fork) the peeking sidebar has no traffic lights, so the header row kept for them is dead space: pull the
   // content up over it, unless the address bar lives in the sidebar
   const addressInSidebar = useAddressBarInSidebar();
-  const headerInUse = addressInSidebar;
+  // 0.2.47 already shrinks the header row when it has nothing to hold (sidebarHeaderCollapsed); don't pull up twice
+  const headerCollapsed = useBrowser((s) => sidebarHeaderCollapsed(s, windowId));
+  const headerInUse = addressInSidebar || headerCollapsed;
   const lift = peeking && !right && !fullscreen && !headerInUse ? layout.pinnedTop - layout.sidebarInset : 0; // tiles end up as far from the top as from the sides
   const shown = shownAs(state);
   useLayoutEffect(() => () => dismissHoverIn(windowId), [windowId, shown]);
