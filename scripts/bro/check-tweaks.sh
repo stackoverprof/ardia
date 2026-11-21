@@ -60,6 +60,7 @@ check apps/browser/src/components/sidebar/GroupBlock.tsx 'no close button on the
 check apps/browser/src/components/sidebar/PageRows.tsx 'lift={0}'
 check apps/browser/src/components/site/ZoomControls.tsx 'no zoom button in the toolbar at rest'
 check apps/browser/src/components/toolbar/Toolbar.tsx 'domain sits in a soft rounded pill'
+check packages/shell/ios/AppUpdater.swift 'github.com/stackoverprof/bro-wser'
 check apps/browser/src/components/window/useDockLights.ts 'In Minimalism mode it'
 check apps/browser/macos/Ardia-macOS/Info.plist '$(BRO_APP_NAME)'
 check apps/browser/src/components/toolbar/Toolbar.tsx 'HAIRLINE_OPACITY = 0.12'

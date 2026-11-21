@@ -17,6 +17,10 @@ upstream code. Never drop one to make a merge go through; ask Erbin instead.
   lines are never rewritten, and About opens with "Bro is a personal fork of Ardia".
 - **Own app id and signing:** `is.erbin.ardia`, team `B39983B5VG` (`project.pbxproj`). Data lives in
   `~/Library/Application Support/is.erbin.ardia`.
+- **Public releases:** `scripts/bro/package.sh` builds Bro-wser, signs it ad hoc (never with Erbin's certificate,
+  which carries his Apple ID) and makes `dist/Bro-wser-<version>-arm64.dmg`; `--release` tags `bro-<version>` and
+  publishes it on GitHub. About's Source code, License and Credits links point at that tag in this repo (GPL).
+- **README is Bro-wser's**, not upstream's: on a merge that touches `README.md`, keep ours.
 - **No auto-update:** `SUFeedURL` is empty and `SUEnableAutomaticChecks` is false, because the official feed would
   replace Bro with stock Ardia. Updates come from merging upstream here.
 - **Builds with Xcode 26:** upstream builds with Xcode 27. Patched: `preferredImageVisibility` removed in

@@ -148,7 +148,8 @@ public final class AppUpdater: NSObject {
 
   private static var aboutCredits: NSAttributedString {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
-    let repository = "https://github.com/mantrakp04/ardia"
+    // (fork) Bro's own source: the GPL asks that a binary point to the source it was built from (tag bro-<version>)
+    let repository = "https://github.com/stackoverprof/bro-wser"
     let centered = NSMutableParagraphStyle()
     centered.alignment = .center
     let plain: [NSAttributedString.Key: Any] = [
@@ -157,9 +158,9 @@ public final class AppUpdater: NSObject {
       .paragraphStyle: centered,
     ]
     let links = [
-      ("Source code", "\(repository)/tree/v\(version)"),
-      ("License", "\(repository)/blob/v\(version)/LICENSE"),
-      ("Credits", "\(repository)/blob/v\(version)/NOTICE"),
+      ("Source code", "\(repository)/tree/bro-\(version)"),
+      ("License", "\(repository)/blob/bro-\(version)/LICENSE"),
+      ("Credits", "\(repository)/blob/bro-\(version)/NOTICE"),
     ]
     let credits = NSMutableAttributedString(string: "\(aboutNotice)\n\n", attributes: plain)
     for (index, (title, url)) in links.enumerated() {
