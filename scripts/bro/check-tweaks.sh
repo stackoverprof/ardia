@@ -40,7 +40,7 @@ check $B/src/state/commands/commands.ts '(fork) Cmd+L again closes the command b
 check $B/src/components/omnibox/CommandPanel.tsx 'FLOATING_SHADOW'
 
 D=$B/src/components/window/SidebarDock.tsx
-check $D 'layout.pinnedTop - layout.sidebarInset'
+check $D 'layout.pinnedTop - layout.sidebarHeader - layout.sidebarInset'
 check $D 'SIDEBAR_GROUND'
 check $B/src/components/window/useDockLights.ts 'setTrafficLightsHidden(windowId, concealed)'
 check $B/src/components/window/useDockLights.ts '(fork) a hidden left sidebar leaves the traffic lights where they are'
