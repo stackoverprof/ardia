@@ -45,6 +45,7 @@ import { LoadingPill, ProgressBar } from "./ProgressBar";
 import { FIELD_LOAD, TOOLBAR_MOTION } from "./tokens";
 import { useToolbarRow } from "./useToolbarRow";
 import { useStableHandler } from "./useStableHandler";
+import { showToolbarMenu } from "./toolbarMenu";
 import { PAGE_IDENTITY_TAG } from "../../state/tabs/tabReveal";
 import { DeveloperToolsButtons } from "./DeveloperToolsButtons";
 import { useDeveloperMode } from "../../state/site/developerMode";
@@ -122,10 +123,10 @@ export const Toolbar = memo(function Toolbar({
   // and close buttons. Each sits `navStep` from the next, centre to centre, with 4 pt between hover plates.
   const navStep = row.button + 4;
   const edge = 8; // from the pane's right edge to the last button
-  const right = (inSplit ? edge + 2 * navStep + 4 : edge + 4) + extensionsWidth;
+  const right = edge + 4 + extensionsWidth; // (fork) the split pane buttons moved to the right-click menu
   const statusRight = right - 4 + 3 * navStep + row.button / 2 - space.xs - row.fieldButton / 2;
   const leftStart = lightsInToolbar ? layout.trafficLightsWidth : 8;
-  const urlLeft = geometry.sidebarButton !== null ? leftStart + row.button + 4 : leftStart;
+  const urlLeft = leftStart; // (fork) no sidebar button
   const at = useMemo(() => {
     const top = Math.round(row.center - row.button / 2); // (fork) whole points, so buttons don't blur or drop a pixel on low-DPI screens
     const place = (center: number | null) => ({ position: "absolute" as const, top, left: (center ?? 0) - row.button / 2 });
@@ -142,10 +143,14 @@ export const Toolbar = memo(function Toolbar({
   return (
     <View ref={bar} style={{ height: row.height }}>
       {!bare && <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: band }]} />}
-      <WindowDragRegion style={StyleSheet.absoluteFill} />
+      {/* (fork) right click anywhere on the toolbar: everything Ardia shows as buttons lives in this menu */}
+      <ContextMenuArea style={StyleSheet.absoluteFill} onContextMenu={() => void showToolbarMenu(tab, { inSplit, tabsShown })}>
+        <WindowDragRegion style={StyleSheet.absoluteFill} />
+      </ContextMenuArea>
       <QuietLightDots windowId={windowId} owner={`toolbar:${tabId}`} on={lightsInToolbar} color={palette.text} lightInk={lightInk} refresh={row} />
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: dim }]} pointerEvents="box-none">
-        {geometry.sidebarButton !== null && (
+        {/* (fork) no sidebar button: Show/Hide Tabs is in the toolbar's right-click menu */}
+        {false && geometry.sidebarButton !== null && (
           <Button variant="icon" toolbar
             style={at.sidebarButton}
             palette={palette}
@@ -158,13 +163,14 @@ export const Toolbar = memo(function Toolbar({
         <HistoryButton place={at.back} tabId={tab.id} windowId={tab.windowId} direction={-1} disabled={!history.back} palette={palette} onFocus={focus} closesTab={history.backCloses} historyHint={hints.back} />
         <HistoryButton place={at.forward} tabId={tab.id} windowId={tab.windowId} direction={1} disabled={!history.forward} palette={palette} onFocus={focus} historyHint={hints.forward} />
         <ReloadButton place={at.reload} tab={tab} loading={isLoading} palette={palette} onFocus={focus} reloadHint={hints.reload} />
-        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={Math.round(row.center - row.extensionButton / 2)} right={inSplit ? edge + 2 * navStep : edge} />
+        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={Math.round(row.center - row.extensionButton / 2)} right={edge} />
         <View nativeID={PAGE_IDENTITY_TAG} collapsable={false} pointerEvents="box-none" style={StyleSheet.absoluteFill}>
           {tab.url ? (
             <ToolbarUrlField tab={tab} palette={palette} windowId={windowId} inSplit={inSplit} loadFill={loadFill} onFocus={focus} style={urlStyle} splitHint={hints.openSplitPane} />
           ) : null}
         </View>
-        {inSplit && (
+        {/* (fork) Split View and Close Pane are in the toolbar's right-click menu */}
+        {false && inSplit && (
           <View style={{ position: "absolute", top: at.top, right: edge, flexDirection: "row", gap: navStep - row.button }}>
             <Button variant="icon" toolbar palette={palette} icon="rectangle.split.2x1" look="row" onPress={splitMenu} tooltip="Split View" />
             <Button variant="icon" toolbar palette={palette} icon="xmark" look="row" weight="medium" onPress={closeThisPane} tooltip="Close Pane" />
@@ -246,6 +252,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
     field.openPanel();
   };
   const domainLit = domain.hovered || barOpen;
+  const tabsShown = useTabsShown(windowId);
   const textLeft = insecure ? LOCK.gap : urlTextLeft(false);
   const leftInset = (typeof style.left === "number" ? style.left : 0) + (insecure ? LOCK.left + LOCK.width : 0) + textLeft;
   const rightInset = (typeof style.right === "number" ? style.right : 0) + buttonsWidth;
@@ -275,6 +282,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
       <View pointerEvents="box-none" style={{ flex: 1, height: row.field, justifyContent: "center", paddingLeft: textLeft + Math.max(0, -balance), paddingRight: Math.max(0, balance) }}>
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
           <Animated.View {...domain.hoverProps} style={{ flexShrink: 1, opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
+            <ContextMenuArea onContextMenu={() => void showToolbarMenu(tab, { inSplit, tabsShown })}>
             <Pressable onPress={pressDomain} style={{ flexShrink: 1, height: row.field, justifyContent: "center" }}>
               {/* (fork) on hover the domain sits in a soft rounded pill, like a button */}
               <View style={{ flexShrink: 1, height: DOMAIN_PILL.height, justifyContent: "center", paddingHorizontal: DOMAIN_PILL.padX, borderRadius: DOMAIN_PILL.radius, backgroundColor: domainLit ? withAlpha(palette.text, DOMAIN_PILL.fill) : ink.clear }}>
@@ -283,17 +291,14 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
                 </Text>
               </View>
             </Pressable>
+            </ContextMenuArea>
           </Animated.View>
           <Animated.View pointerEvents="none" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: swap }}>
             {loading && <LoadingPill key={tab.id} color={palette.text} />}
           </Animated.View>
         </View>
       </View>
-      <View onLayout={(e) => setButtonsWidth(e.nativeEvent.layout.width)}>
-        <FieldButtons tab={tab} palette={palette} onFocus={onFocus} popover={popover} toggleSiteControls={toggleSiteControls}>
-          {null}
-        </FieldButtons>
-      </View>
+      {/* (fork) no buttons beside the domain: reader, translate, pop-ups and site controls are in the right-click menu */}
     </View>
   );
 });

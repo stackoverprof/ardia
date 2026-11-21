@@ -31,9 +31,9 @@ Each Bro-wser release is built from an Ardia release: Bro-wser 0.2.47 is Ardia 0
 ### Toolbar
 - **No address field.** The toolbar shows only the site's domain, centred, in a soft shade of the page's colour.
   Hover it and it sits in a small pill; click it to open the command bar, click again to close it.
-- **Back, forward and reload on the right**, just before your extensions.
+- **Only back, forward and reload**, on the right before your extensions. Everything else (Reader, Translate,
+  Site Controls, Split View, zoom, bookmark, share, Show Tabs, Minimalism) is in the toolbar's right-click menu.
 - **A loading pill** takes the domain's place while a page loads, instead of a bar along the bottom edge.
-- **No zoom button.** The zoom bubble still shows while you press ⌘+ or ⌘−.
 - **Quiet traffic lights.** Grey dots at rest, the real coloured buttons when you hover the corner.
 
 ### Command bar
